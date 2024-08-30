@@ -126,8 +126,8 @@ public class AuthIntegrationTest extends BaseTestContainerTest {
 //                .andExpect(status().isOk())
 //                .andExpect(content().string("ADMIN::TEST"));
 //    }
-//
-//
+
+
 //    @Test
 //    @WithMockUser(username = "admin", roles = {"ADMIN"})
 //    void shouldReturnErrorIfNoUserFoundWhenDeleting() throws Exception {
@@ -148,6 +148,19 @@ public class AuthIntegrationTest extends BaseTestContainerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("NewName"));
     }
+//    @Test
+//    @WithMockUser(username = "admin", roles = {"ADMIN"})
+//    void shouldUpdateUserAccount() throws Exception {
+//        int userId = 1;  // Example userId, adjust as needed
+//        String updateProfileJson = "{ \"firstName\": \"NewName\", \"lastName\": \"NewLastName\" }";  // Example payload
+//
+//        mockMvc.perform(post("/api/v1/admin/user-management/" + userId)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(updateProfileJson))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.firstName").value("NewName"))
+//                .andExpect(jsonPath("$.lastName").value("NewLastName"));  // Verify that lastName is also updated
+//    }
 
     @Test
     void shouldReturnForbiddenForUnauthenticatedUserUpdateRequest() throws Exception {
