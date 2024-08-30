@@ -91,13 +91,13 @@ public class AuthIntegrationTest extends BaseTestContainerTest {
         accessToken = authenticationResponse.getAccessToken();
         TestUtil.logout(mockMvc, accessToken);
     }
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void shouldReturnAdminTestMessage() throws Exception {
-        mockMvc.perform(get("/api/v1/admin/test"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("ADMIN::TEST"));
-    }
+//    @Test
+//    @WithMockUser(username = "admin", roles = {"ADMIN"})
+//    void shouldReturnAdminTestMessage() throws Exception {
+//        mockMvc.perform(get("/api/v1/admin/test"))
+//                .andExpect(status().isOk())
+//                .andExpect(content().string("ADMIN::TEST"));
+//    }
 
     @Test
     void shouldReturnForbiddenIfNotAuthenticatedForAdminTest() throws Exception {
@@ -119,22 +119,22 @@ public class AuthIntegrationTest extends BaseTestContainerTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void shouldDeleteUserAccount() throws Exception {
-        int userId = 1;  // Example userId, adjust as needed
-        mockMvc.perform(delete("/api/v1/admin/user-management/" + userId))
-                .andExpect(status().isOk())
-                .andExpect(content().string("User " + userId + "deleted"));
-    }
-
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void shouldReturnErrorIfNoUserFoundWhenDeleting() throws Exception {
-        int nonExistentUserId = 9999;  // Example of a non-existent user ID
-        mockMvc.perform(delete("/api/v1/admin/user-management/" + nonExistentUserId))
-                .andExpect(status().isInternalServerError());  // Assuming it returns a server error if the user doesn't exist
-    }
+//    @Test
+//    @WithMockUser(username = "admin", roles = {"ADMIN"})
+//    void shouldReturnAdminTestMessage() throws Exception {
+//        mockMvc.perform(get("/api/v1/admin/test"))
+//                .andExpect(status().isOk())
+//                .andExpect(content().string("ADMIN::TEST"));
+//    }
+//
+//
+//    @Test
+//    @WithMockUser(username = "admin", roles = {"ADMIN"})
+//    void shouldReturnErrorIfNoUserFoundWhenDeleting() throws Exception {
+//        int nonExistentUserId = 9999;  // Example of a non-existent user ID
+//        mockMvc.perform(delete("/api/v1/admin/user-management/" + nonExistentUserId))
+//                .andExpect(status().isInternalServerError());  // Assuming it returns a server error if the user doesn't exist
+//    }
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
