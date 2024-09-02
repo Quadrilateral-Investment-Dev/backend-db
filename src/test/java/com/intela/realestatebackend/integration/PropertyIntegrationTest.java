@@ -50,4 +50,20 @@ public class PropertyIntegrationTest extends BaseTestContainerTest {
                 .andExpect(jsonPath("$.ownerEmail").value(PROPERTY_OWNER_EMAIL))
                 .andExpect(jsonPath("$.type").value(PROPERTY_TYPE));
     }
+    // need to update based on details aobut propertry
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void shouldGetPropertyById() throws Exception {
+        int propertyId = 1;
+
+        mockMvc.perform(get("/api/v1/properties/" + propertyId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(propertyId))
+                .andExpect(jsonPath("$.name").value(PROPERTY_NAME))
+                .andExpect(jsonPath("$.description").value(PROPERTY_DESCRIPTION))
+                .andExpect(jsonPath("$.location").value(PROPERTY_LOCATION))
+                .andExpect(jsonPath("$.price").value(PROPERTY_PRICE));
+    }
+
 }
