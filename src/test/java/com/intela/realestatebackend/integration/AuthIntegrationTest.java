@@ -109,7 +109,8 @@ public class AuthIntegrationTest extends BaseTestContainerTest {
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void shouldListAllAccounts() throws Exception {
         mockMvc.perform(get("/api/v1/admin/user-management"))
-                .andExpect(status().isOk());  // Assuming the endpoint returns a list
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());  // Assuming the endpoint returns a list
     }
 
     @Test
@@ -170,4 +171,7 @@ public class AuthIntegrationTest extends BaseTestContainerTest {
                         .content(updateProfileJson))
                 .andExpect(status().isForbidden());
     }
+    /*
+    End point is expected as we are to front end
+     */
 }
