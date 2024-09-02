@@ -65,5 +65,15 @@ public class PropertyIntegrationTest extends BaseTestContainerTest {
                 .andExpect(jsonPath("$.location").value(PROPERTY_LOCATION))
                 .andExpect(jsonPath("$.price").value(PROPERTY_PRICE));
     }
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void shouldGetPropertyImagesById() throws Exception {
+        int propertyId = 1;  // Example property ID
+
+        mockMvc.perform(get("/api/v1/properties/images/" + propertyId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());  // Assuming the endpoint returns a list of images
+    }
 
 }
