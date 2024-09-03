@@ -21,10 +21,9 @@ public class PropertyIntegrationTest extends BaseTestContainerTest {
     private static final String PROPERTY_NAME = "Seaside Villa";
     private static final String PROPERTY_ADDRESS = "123 Beach Road, Sydney, NSW";
     private static final String PROPERTY_DESCRIPTION = "A beautiful seaside villa with ocean views.";
-    private static final int PROPERTY_PRICE = 1500000;
+    private static final int PROPERTY_PRICE = 2500;
     private static final String PROPERTY_OWNER_EMAIL = "owner@gmail.com";
     private static final String PROPERTY_TYPE = "Villa";
-
 
 
     @Test
