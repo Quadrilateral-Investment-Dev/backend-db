@@ -34,7 +34,7 @@ public class AuthIntegrationTest extends BaseTestContainerTest {
         registerRequest.setPassword(PASSWORD);
         registerRequest.setEmail(EMAIL);
         registerRequest.setMobileNumber(MOBILE_NUMBER);
-        registerRequest.setRole(Role.CUSTOMER);
+        registerRequest.setRole(Role.DEALER);
 
         // Step 2: Perform POST /register without any specific role
         mockMvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(registerRequest))).andExpect(status().isCreated());  // Assuming successful registration returns HTTP 201
