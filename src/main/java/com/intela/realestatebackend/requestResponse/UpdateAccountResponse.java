@@ -1,18 +1,16 @@
 package com.intela.realestatebackend.requestResponse;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+import java.util.Map;
 
 @Data
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ImageResponse {
-    private int id;
-    private byte[] image;
-    private String type;
-    private String name;
-    private Integer propertyId;
+public class UpdateAccountResponse {
+    Map<String, Object> updatedFields;
 }

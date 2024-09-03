@@ -1,6 +1,5 @@
-package com.intela.realestatebackend.models.application;
+package com.intela.realestatebackend.models.profile;
 
-import com.intela.realestatebackend.models.property.Property;
 import com.intela.realestatebackend.models.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,12 +24,8 @@ public class CustomerInformation {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "property_id")
-    private Property property;
-
-    @OneToMany(mappedBy = "profile")
-    private Set<ContactDetails> contactDetails;
+    @OneToOne(mappedBy = "profile")
+    private ContactDetails contactDetails;
 
     @OneToMany(mappedBy = "profile")
     private Set<EmergencyContact> emergencyContacts;

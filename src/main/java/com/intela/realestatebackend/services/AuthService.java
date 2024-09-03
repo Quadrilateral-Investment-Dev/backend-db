@@ -7,6 +7,7 @@ import com.intela.realestatebackend.models.User;
 import com.intela.realestatebackend.repositories.TokenRepository;
 import com.intela.realestatebackend.repositories.UserRepository;
 import com.intela.realestatebackend.requestResponse.*;
+import com.intela.realestatebackend.util.Util;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -163,7 +164,34 @@ public class AuthService {
         }
     }
 
-    public PasswordResetResponse resetPassword(PasswordResetRequest request) {
-        return null;
+    public PasswordResetResponse resetPassword(HttpServletRequest servletRequest, PasswordResetRequest request) {
+        // Extract user information from the servletRequest
+        String userEmail = servletRequest.getUserPrincipal().getName(); // Assuming user email is the principal's name
+
+        // Retrieve the user by email
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Encrypt the new password
+        String encodedPassword = passwordEncoder.encode(request.getNewPassword());
+
+        // Update the user's password
+        user.setPassword(encodedPassword);
+
+        // Save the updated user
+        userRepository.save(user);
+
+        // Return a successful PasswordResetResponse
+        PasswordResetResponse response = new PasswordResetResponse();
+
+        return response;
+    }
+
+    public RetrieveAccountResponse getUserByAccessToken(String accessToken) {
+        return Util.mapToRetrieveAccountResponse(tokenRepository.findUserByAccessToken(accessToken));
+    }
+
+    public RetrieveAccountResponse getUserByRefreshToken(String refreshToken) {
+        return Util.mapToRetrieveAccountResponse(tokenRepository.findUserByRefreshToken(refreshToken));
     }
 }

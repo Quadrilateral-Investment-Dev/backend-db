@@ -1,8 +1,10 @@
 package com.intela.realestatebackend.repositories;
 
 import com.intela.realestatebackend.models.Token;
+import com.intela.realestatebackend.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,4 +20,15 @@ public interface TokenRepository extends JpaRepository<Token, Integer> {
     List<Token> findAllValidTokenByUser(Integer userId);
 
     Optional<Token> findByToken(String token);
+    @Query("SELECT u\n" +
+            "FROM users u\n" +
+            "JOIN tokens t\n" +
+            "WHERE t.token = :accessToken AND t.revoked = false AND t.expired = false")
+    User findUserByAccessToken(@Param("accessToken") String accessToken);
+
+    @Query("SELECT u\n" +
+            "FROM users u\n" +
+            "JOIN tokens t\n" +
+            "WHERE t.token = :refreshToken AND t.revoked = false AND t.expired = false")
+    User findUserByRefreshToken(@Param("refreshToken") String refreshToken);
 }

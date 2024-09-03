@@ -1,10 +1,11 @@
 package com.intela.realestatebackend.models;
 
-import com.intela.realestatebackend.models.application.CustomerInformation;
+import com.intela.realestatebackend.models.profile.CustomerInformation;
 import com.intela.realestatebackend.models.archetypes.Role;
 import com.intela.realestatebackend.models.property.Bookmark;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -18,7 +19,7 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @Entity(name = "users")
 public class User implements UserDetails{
     @Id

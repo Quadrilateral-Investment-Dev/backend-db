@@ -1,4 +1,4 @@
-package com.intela.realestatebackend.models.application;
+package com.intela.realestatebackend.models.profile;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +19,7 @@ public class ContactDetails {
     private String contactNumber;
     private String contactEmail;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "profile_id")
     private CustomerInformation profile;
 }
