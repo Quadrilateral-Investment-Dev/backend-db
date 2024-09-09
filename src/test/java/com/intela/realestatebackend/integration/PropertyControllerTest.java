@@ -61,7 +61,7 @@ public class PropertyControllerTest extends BaseTestContainerTest {
         request.setAvailableTill(PROPERTY_AVAILABLE_TILL);
         //request.setImages(PROPERTY_IMAGES);
 
-        mockMvc.perform(post("/api/v1/properties")
+        mockMvc.perform(get("/api/v1/properties/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
