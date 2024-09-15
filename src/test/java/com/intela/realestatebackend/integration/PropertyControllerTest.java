@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import java.sql.Timestamp;
@@ -36,6 +37,7 @@ public class PropertyControllerTest extends BaseTestContainerTest {
     private static final Timestamp PROPERTY_AVAILABLE_FROM = Timestamp.valueOf("2024-09-01 00:00:00");
     private static final Timestamp PROPERTY_AVAILABLE_TILL = Timestamp.valueOf("2024-12-31 23:59:59");
     private static final List<String> PROPERTY_IMAGES = List.of("image_url_1", "image_url_2");
+    private static final BillType PROPERTY_BILL_TYPE = BillType.INCLUDED;
 
     // Sample updated property data
     private static final String UPDATED_PROPERTY_OWNER_NAME = "Jane Doe";
@@ -56,14 +58,29 @@ public class PropertyControllerTest extends BaseTestContainerTest {
         request.setPropertyType(PROPERTY_TYPE);
         request.setStatus(PROPERTY_STATUS);
         request.setPrice(PROPERTY_PRICE);
-        //request.setBillType(PROPERTY_BILL_TYPE);
+        request.setBillType(PROPERTY_BILL_TYPE);
         request.setAvailableFrom(PROPERTY_AVAILABLE_FROM);
         request.setAvailableTill(PROPERTY_AVAILABLE_TILL);
         //request.setImages(PROPERTY_IMAGES);
 
+<<<<<<< HEAD
         mockMvc.perform(get("/api/v1/properties/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+=======
+        mockMvc.perform(multipart("/api/v1/dealer/property/add")
+                        .file(new MockMultipartFile(
+                                "images",
+                                "",
+                                String.valueOf(MediaType.IMAGE_PNG),
+                                (byte[]) null))
+                        .file(new MockMultipartFile(
+                                "propertyJsonData",
+                                "",
+                                MediaType.APPLICATION_JSON_VALUE,
+                                objectMapper.writeValueAsString(request).getBytes()))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+>>>>>>> 2c9bc83930514688e081f818dd70e59bfc7807de
                 .andExpect(status().isCreated());
     }
 
