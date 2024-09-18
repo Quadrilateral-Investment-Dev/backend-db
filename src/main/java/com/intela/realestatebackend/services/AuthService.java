@@ -185,6 +185,7 @@ public class AuthService {
         PasswordResetResponse response = new PasswordResetResponse();
 
         return response;
+
     }
 
     public RetrieveAccountResponse getUserByAccessToken(String accessToken) {

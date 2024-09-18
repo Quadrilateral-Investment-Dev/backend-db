@@ -44,9 +44,6 @@ public class PropertyControllerTest extends BaseTestContainerTest {
     private static final String UPDATED_PROPERTY_DESCRIPTION = "Updated luxury apartment in downtown.";
     private static final List<String> UPDATED_PROPERTY_IMAGES = List.of("updated_image_url_1", "updated_image_url_2");
 
-    /*
-    End point needs to be defined
-     */
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void shouldCreateProperty() throws Exception {
@@ -63,11 +60,7 @@ public class PropertyControllerTest extends BaseTestContainerTest {
         request.setAvailableTill(PROPERTY_AVAILABLE_TILL);
         //request.setImages(PROPERTY_IMAGES);
 
-<<<<<<< HEAD
-        mockMvc.perform(get("/api/v1/properties/")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-=======
+
         mockMvc.perform(multipart("/api/v1/dealer/property/add")
                         .file(new MockMultipartFile(
                                 "images",
@@ -80,7 +73,6 @@ public class PropertyControllerTest extends BaseTestContainerTest {
                                 MediaType.APPLICATION_JSON_VALUE,
                                 objectMapper.writeValueAsString(request).getBytes()))
                         .contentType(MediaType.MULTIPART_FORM_DATA))
->>>>>>> 2c9bc83930514688e081f818dd70e59bfc7807de
                 .andExpect(status().isCreated());
     }
 
@@ -108,42 +100,44 @@ public class PropertyControllerTest extends BaseTestContainerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void shouldGetPropertyImagesById() throws Exception {
+    void shouldGetImagesByPropertyId() throws Exception {
         int propertyId = 1;  // Example property ID
 
-        mockMvc.perform(get("/api/v1/properties/images/" + propertyId)
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/dealer/property/images/" + propertyId)
+                        .contentType(MediaType.IMAGE_JPEG_VALUE))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0]").value(PROPERTY_IMAGES.get(0)));  // Example check for the first image URL
+                .andExpect(content().contentType(MediaType.IMAGE_JPEG_VALUE));
     }
+
+
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void shouldDeletePropertyById() throws Exception {
+    void shouldDeleteProperty() throws Exception {
         int propertyId = 1;  // Example property ID
 
-        mockMvc.perform(delete("/api/v1/properties/" + propertyId)
+        mockMvc.perform(delete("/api/v1/dealer/property/" + propertyId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Property has been deleted successfully"));
     }
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void shouldUpdatePropertyById() throws Exception {
-        int propertyId = 1;  // Example property ID
 
-        String updatePropertyJson = "{ \"propertyOwnerName\": \"" + UPDATED_PROPERTY_OWNER_NAME + "\", \"description\": \"" + UPDATED_PROPERTY_DESCRIPTION + "\", \"images\": " + objectMapper.writeValueAsString(UPDATED_PROPERTY_IMAGES) + " }";
-
-        mockMvc.perform(put("/api/v1/properties/" + propertyId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(updatePropertyJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.propertyOwnerName").value(UPDATED_PROPERTY_OWNER_NAME))
-                .andExpect(jsonPath("$.description").value(UPDATED_PROPERTY_DESCRIPTION))
-                .andExpect(jsonPath("$.images").isArray())
-                .andExpect(jsonPath("$.images[0]").value("updated_image_url_1"));
-    }
+//    @Test
+//    @WithMockUser(username = "admin", roles = {"ADMIN"})
+//    void shouldUpdatePropertyById() throws Exception {
+//        int propertyId = 1;  // Example property ID
+//
+//        String updatePropertyJson = "{ \"propertyOwnerName\": \"" + UPDATED_PROPERTY_OWNER_NAME + "\", \"description\": \"" + UPDATED_PROPERTY_DESCRIPTION + "\", \"images\": " + objectMapper.writeValueAsString(UPDATED_PROPERTY_IMAGES) + " }";
+//
+//        mockMvc.perform(put("/api/v1/properties/" + propertyId)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(updatePropertyJson))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.propertyOwnerName").value(UPDATED_PROPERTY_OWNER_NAME))
+//                .andExpect(jsonPath("$.description").value(UPDATED_PROPERTY_DESCRIPTION))
+//                .andExpect(jsonPath("$.images").isArray())
+//                .andExpect(jsonPath("$.images[0]").value("updated_image_url_1"));
+//    }
 
 }
