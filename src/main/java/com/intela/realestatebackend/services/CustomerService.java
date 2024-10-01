@@ -12,10 +12,7 @@ import com.intela.realestatebackend.repositories.PropertyRepository;
 import com.intela.realestatebackend.repositories.UserRepository;
 import com.intela.realestatebackend.repositories.application.ApplicationRepository;
 import com.intela.realestatebackend.repositories.application.IDRepository;
-import com.intela.realestatebackend.requestResponse.ApplicationRequest;
-import com.intela.realestatebackend.requestResponse.ApplicationResponse;
-import com.intela.realestatebackend.requestResponse.BookmarkResponse;
-import com.intela.realestatebackend.requestResponse.IDImageResponse;
+import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.util.Util;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -113,7 +110,7 @@ public class CustomerService {
     }
 
     @Transactional
-    public void createApplication(Integer propertyId, HttpServletRequest servletRequest, ApplicationRequest request, MultipartFile[] images) {
+    public ApplicationCreationResponse createApplication(Integer propertyId, HttpServletRequest servletRequest, ApplicationRequest request, MultipartFile[] images) {
         // Retrieve the user by token from the request
         User user = getUserByToken(servletRequest, jwtService, this.userRepository);
         Set<ID> ids = new HashSet<>();
@@ -128,8 +125,17 @@ public class CustomerService {
         request.setUser(user);
         request.setProperty(property);
         request.setIds(ids);
+        if (request.getId() != null) {
+            request.setId(null);
+        }
         // Save the CustomerInformation entity
         this.applicationRepository.save(request);
+        ApplicationCreationResponse applicationCreationResponse = new ApplicationCreationResponse();
+        applicationCreationResponse.setId(request.getId());
+        applicationCreationResponse.setPropertyId(request.getProperty().getId());
+        applicationCreationResponse.setUserId(request.getUser().getId());
+
+        return applicationCreationResponse;
     }
 
     public List<ApplicationResponse> getAllApplications(HttpServletRequest servletRequest) {

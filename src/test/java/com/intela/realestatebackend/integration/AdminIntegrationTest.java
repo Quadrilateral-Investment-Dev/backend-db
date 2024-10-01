@@ -214,20 +214,20 @@ public class AdminIntegrationTest extends BaseTestContainerTest {
         // Convert JSON to RetrieveProfileResponse
 
         // Step 3: Admin updates customer's profile
-        UpdateAccountRequest updateProfileRequest = new UpdateAccountRequest(
+        UpdateAccountRequest updateAccountRequest = new UpdateAccountRequest(
                 "UpdatedFirstName",
                 "UpdatedLastName",
                 "1234567890",
                 "updatedEmail@gmail.com"
         );
-        Assertions.assertNotEquals(originalAccount.getEmail(), updateProfileRequest.getEmail());
-        Assertions.assertNotEquals(originalAccount.getMobileNumber(), updateProfileRequest.getMobileNumber());
-        Assertions.assertNotEquals(originalAccount.getFirstName(), updateProfileRequest.getFirstName());
-        Assertions.assertNotEquals(originalAccount.getLastName(), updateProfileRequest.getLastName());
+        Assertions.assertNotEquals(originalAccount.getEmail(), updateAccountRequest.getEmail());
+        Assertions.assertNotEquals(originalAccount.getMobileNumber(), updateAccountRequest.getMobileNumber());
+        Assertions.assertNotEquals(originalAccount.getFirstName(), updateAccountRequest.getFirstName());
+        Assertions.assertNotEquals(originalAccount.getLastName(), updateAccountRequest.getLastName());
 
         mockMvc.perform(post("/api/v1/admin/user-management/{userId}", customer.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateProfileRequest))
+                        .content(objectMapper.writeValueAsString(updateAccountRequest))
                         .header("Authorization", "Bearer " + adminAccessToken))
                 .andExpect(status().isOk());
 

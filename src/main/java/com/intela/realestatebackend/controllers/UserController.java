@@ -72,7 +72,7 @@ public class UserController {
                             schemaProperties =
                                     {
                                             @SchemaProperty(
-                                                    name = "images",
+                                                    name = "image",
                                                     schema = @Schema(type = "string", format = "binary")
                                             )
                                     }
