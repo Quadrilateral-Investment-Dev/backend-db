@@ -1,6 +1,6 @@
 package com.intela.realestatebackend.dto;
 
-import com.intela.realestatebackend.models.profile.ContactDetails;
+import com.intela.realestatebackend.models.profile.PersonalDetails;
 import lombok.*;
 
 @EqualsAndHashCode(callSuper = true)
@@ -8,5 +8,5 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @Data
-public class ContactDetailsDTO extends ContactDetails {
+public class PersonalDetailsDTO extends PersonalDetails {
 }

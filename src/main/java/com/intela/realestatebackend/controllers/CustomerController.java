@@ -1,9 +1,6 @@
 package com.intela.realestatebackend.controllers;
 
-import com.intela.realestatebackend.requestResponse.ApplicationRequest;
-import com.intela.realestatebackend.requestResponse.ApplicationResponse;
-import com.intela.realestatebackend.requestResponse.BookmarkResponse;
-import com.intela.realestatebackend.requestResponse.IDImageResponse;
+import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.services.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.*;
@@ -89,10 +86,9 @@ public class CustomerController {
             )
     )
     @PostMapping(value = "/applications/create/{propertyId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> createApplication(@PathVariable Integer propertyId, HttpServletRequest servletRequest,
-                                                    @RequestPart("request") ApplicationRequest request, @RequestPart(name = "images", required = false) MultipartFile[] images) {
-        this.customerService.createApplication(propertyId, servletRequest, request, images);
-        return ResponseEntity.ok("Application created");
+    public ResponseEntity<ApplicationCreationResponse> createApplication(@PathVariable Integer propertyId, HttpServletRequest servletRequest,
+                                                                         @RequestPart("request") ApplicationRequest request, @RequestPart(name = "images", required = false) MultipartFile[] images) {
+        return ResponseEntity.ok().body(this.customerService.createApplication(propertyId, servletRequest, request, images));
     }
 
     @GetMapping(value = "/applications/images/{applicationId}")

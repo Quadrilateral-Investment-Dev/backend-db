@@ -1,18 +1,13 @@
 package com.intela.realestatebackend.integration;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.intela.realestatebackend.BaseTestContainerTest;
 import com.intela.realestatebackend.dto.ContactDetailsDTO;
-import com.intela.realestatebackend.models.profile.ContactDetails;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import com.intela.realestatebackend.models.archetypes.Role;
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.testUsers.TestUser;
 import com.intela.realestatebackend.testUtil.TestUtil;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -20,10 +15,12 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,11 +28,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class UserIntegrationTest extends BaseTestContainerTest {
     @Autowired
-    private List<TestUser> testUserList;
+    private List<TestUser> allUsers;
+
+    private static List<TestUser> testUserList;
+
     @Test
     @Order(1)
     void shouldRegisterUser() throws Exception {
-        TestUtil.testRegister(mockMvc, objectMapper, testUserList.get(0));
+        testUserList = TestUtil.testRegisterCustomerUsers(mockMvc, objectMapper, allUsers);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class UserIntegrationTest extends BaseTestContainerTest {
 
         String accessToken = authenticationResponse.getAccessToken();
         String s = mockMvc.perform(get("/api/v1/user/profile")
-                .header("Authorization", "Bearer " + accessToken))
+                        .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -128,10 +128,19 @@ public class UserIntegrationTest extends BaseTestContainerTest {
                 .getContentAsString();
         RetrieveProfileResponse retrieveProfileResponse2 = objectMapper.readValue(s, RetrieveProfileResponse.class);
 
+        s = mockMvc.perform(get("/api/v1/user/profile/ids")
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        List<IDImageResponse> idImageResponses = objectMapper.readValue(s, new TypeReference<>() {
+        });
+
         assertEquals(retrieveProfileResponse2.getContactDetails().getContactEmail(), contactDetails.getContactEmail());
         assertEquals(retrieveProfileResponse2.getContactDetails().getContactNumber(), contactDetails.getContactNumber());
 
-        retrieveProfileResponse2.getIds().forEach(id -> {
+        idImageResponses.forEach(id -> {
             if (id.getName().equals("image1.jpg")) {
                 assertThat(id.getImage().length).isGreaterThan(0);
                 assertThat(id.getImage()).isEqualTo(image1Bytes);
@@ -179,6 +188,7 @@ public class UserIntegrationTest extends BaseTestContainerTest {
     }
 
     @Test
+    //@Disabled
     @Order(4)
     void shouldUserUpdateAccountInfo() throws Exception {
         AuthenticationResponse authenticationResponse = TestUtil.testLogin(mockMvc, objectMapper, testUserList.get(0).getEMAIL(), testUserList.get(0).getPASSWORD());
@@ -201,7 +211,7 @@ public class UserIntegrationTest extends BaseTestContainerTest {
                 retrieveAccountResponse.getFirstName(),
                 retrieveAccountResponse.getLastName(),
                 retrieveAccountResponse.getMobileNumber(),
-                testUserList.get(1).getEMAIL()
+                testUserList.get(1).getEMAIL() + ".au"
         );
         mockMvc.perform(post("/api/v1/user/")
                         .header("Authorization", "Bearer " + accessToken)
@@ -219,9 +229,10 @@ public class UserIntegrationTest extends BaseTestContainerTest {
         retrieveAccountResponse = objectMapper.readValue(s, RetrieveAccountResponse.class);
         assertEquals(retrieveAccountResponse.getFirstName(), testUserList.get(0).getFIRST_NAME());
         assertEquals(retrieveAccountResponse.getLastName(), testUserList.get(0).getLAST_NAME());
-        assertEquals(retrieveAccountResponse.getEmail(), testUserList.get(1).getEMAIL());
+        assertEquals(retrieveAccountResponse.getEmail(), testUserList.get(1).getEMAIL() + ".au");
         assertEquals(retrieveAccountResponse.getMobileNumber(), testUserList.get(0).getMOBILE_NUMBER());
 
+        TestUtil.resetTestUserAccountInfo(mockMvc, objectMapper, accessToken, testUserList.get(0));
         TestUtil.testLogout(mockMvc, accessToken);
     }
 
@@ -269,6 +280,7 @@ public class UserIntegrationTest extends BaseTestContainerTest {
         assertEquals(retrieveAccountResponse.getEmail(), testUserList.get(0).getEMAIL());
         assertEquals(retrieveAccountResponse.getMobileNumber(), testUserList.get(0).getMOBILE_NUMBER());
 
+        TestUtil.resetTestUserAccountInfo(mockMvc, objectMapper, accessToken, testUserList.get(0));
         TestUtil.testLogout(mockMvc, accessToken);
     }
 
@@ -316,6 +328,7 @@ public class UserIntegrationTest extends BaseTestContainerTest {
         assertEquals(retrieveAccountResponse.getEmail(), testUserList.get(0).getEMAIL());
         assertEquals(retrieveAccountResponse.getMobileNumber(), testUserList.get(0).getMOBILE_NUMBER());
 
+        TestUtil.resetTestUserAccountInfo(mockMvc, objectMapper, accessToken, testUserList.get(0));
         TestUtil.testLogout(mockMvc, accessToken);
     }
 
@@ -363,6 +376,7 @@ public class UserIntegrationTest extends BaseTestContainerTest {
         assertEquals(retrieveAccountResponse.getEmail(), testUserList.get(0).getEMAIL());
         assertEquals(retrieveAccountResponse.getMobileNumber(), testUserList.get(1).getMOBILE_NUMBER());
 
+        TestUtil.resetTestUserAccountInfo(mockMvc, objectMapper, accessToken, testUserList.get(0));
         TestUtil.testLogout(mockMvc, accessToken);
     }
 }

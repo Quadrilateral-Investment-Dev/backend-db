@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -71,7 +72,7 @@ public class UserController {
                             schemaProperties =
                                     {
                                             @SchemaProperty(
-                                                    name = "images",
+                                                    name = "image",
                                                     schema = @Schema(type = "string", format = "binary")
                                             )
                                     }
@@ -104,6 +105,11 @@ public class UserController {
             HttpServletRequest servletRequest
     ) {
         return ResponseEntity.ok().body(userService.retrieveProfile(servletRequest));
+    }
+
+    @GetMapping(value = "/profile/ids")
+    public ResponseEntity<List<IDImageResponse>> getIdImagesByUserId(HttpServletRequest servletRequest) {
+        return ResponseEntity.ok(this.userService.getIdImagesByUserId(servletRequest));
     }
 
     @PostMapping("/")

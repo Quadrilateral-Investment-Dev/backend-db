@@ -8,32 +8,32 @@ import com.intela.realestatebackend.repositories.UserRepository;
 import com.intela.realestatebackend.repositories.application.IDRepository;
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.util.Util;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.intela.realestatebackend.util.Util.getUserByToken;
 
 @Service
 @RequiredArgsConstructor
 public class AdminService {
 
     @Autowired
+    private final ImageService imageService;
+    @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private ProfileRepository profileRepository;
     @Autowired
     private IDRepository idRepository;
-
-    @Autowired
-    private final ImageService imageService;
 
     public List<RetrieveProfileResponse> listAllProfiles() {
         // Retrieve profiles where property_id is null
@@ -43,8 +43,12 @@ public class AdminService {
     }
 
     public void deleteAccount(Integer userId) {
-        // Delete the user account by userId
-        userRepository.deleteById(userId);
+        Optional<User> entity = userRepository.findById(userId);
+        if (entity.isPresent()) {
+            userRepository.deleteById(userId);
+        } else {
+            throw new EntityNotFoundException("Entity with id " + userId + " not found");
+        }
     }
 
     public void updateProfile(Integer userId, MultipartFile[] images, UpdateProfileRequest request) throws IllegalAccessException {
@@ -90,6 +94,39 @@ public class AdminService {
 
         // Set the bannedTill timestamp
         user.setBannedTill(bannedTill);
+
+        // Save the updated user back to the repository
+        userRepository.save(user);
+    }
+
+    public List<IDImageResponse> getIdImagesByUserId(Integer userId, HttpServletRequest servletRequest) {
+        Profile profile = profileRepository.findByProfileOwnerId(userId).orElseThrow(
+                () -> new RuntimeException("Profile not found")
+        );
+        List<ID> idImageResponses = idRepository.findAllByProfileId(Math.toIntExact(profile.getId()));
+        return idImageResponses.stream()
+                .map(Util::convertFromIDImageToImageResponse) // Assuming ImageResponse has a constructor that takes a PropertyImage
+                .collect(Collectors.toList());
+    }
+
+    public RetrieveProfileResponse retrieveProfile(Integer userId) {
+        Profile profile = profileRepository.findByProfileOwnerId(userId)
+                .orElseThrow(() -> new RuntimeException("Profile not found for user"));
+        return new RetrieveProfileResponse(profile);
+    }
+
+    public RetrieveAccountResponse retrieveAccount(Integer userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return new RetrieveAccountResponse(user);
+    }
+
+    public void unbanAccount(Integer userId) {
+        // Retrieve the user by userId
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Set the bannedTill timestamp
+        user.setBannedTill(null);
 
         // Save the updated user back to the repository
         userRepository.save(user);

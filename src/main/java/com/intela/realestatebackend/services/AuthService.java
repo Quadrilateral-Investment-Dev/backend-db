@@ -81,7 +81,7 @@ public class AuthService {
         saveUserToken(savedUser, refreshToken, TokenType.REFRESH);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                savedUser.getEmail(), savedUser.getPassword()
+                savedUser.getUsername(), savedUser.getPassword()
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -107,11 +107,12 @@ public class AuthService {
 
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new EntityNotFoundException("User email does not exist"));
-
+        if (!user.isAccountNonLocked())
+            throw new RuntimeException("User is banned until " + user.getBannedTill());
         if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    request.getEmail(), request.getPassword()
+                    user.getUsername(), request.getPassword()
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -136,17 +137,17 @@ public class AuthService {
     ) throws IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
-        final String userEmail;
+        final String username;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return;
         }
 
         refreshToken = authHeader.split(" ")[1].trim();
-        userEmail = jwtService.extractUsername(refreshToken);
+        username = jwtService.extractUsername(refreshToken);
 
-        if (userEmail != null) {
-            var user = this.userRepository.findByEmail(userEmail)
+        if (username != null) {
+            var user = this.userRepository.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("Please enter valid token"));
 
             var isTokenValid = tokenRepository.findByTokenAndExpiredFalseAndRevokedFalse(refreshToken)
@@ -172,12 +173,7 @@ public class AuthService {
     }
 
     public void resetPassword(HttpServletRequest servletRequest, PasswordResetRequest request) {
-        // Extract user information from the servletRequest
-        String userEmail = servletRequest.getUserPrincipal().getName(); // Assuming user email is the principal's name
-
-        // Retrieve the user by email
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = Util.getUserByToken(servletRequest, jwtService, userRepository);
 
         // Encrypt the new password
         String encodedPassword = passwordEncoder.encode(request.getNewPassword());
@@ -190,22 +186,22 @@ public class AuthService {
     }
 
     public RetrieveAccountResponse getUserByAccessToken(String accessToken) {
-        if (accessToken == null){
+        if (accessToken == null) {
             throw new MissingAccessTokenException("Missing access token");
         }
         User user = tokenRepository.findUserByAccessToken(accessToken);
-        if (user == null){
+        if (user == null) {
             throw new MissingAccessTokenException("Missing access token");
         }
         return Util.mapToRetrieveAccountResponse(user);
     }
 
     public RetrieveAccountResponse getUserByRefreshToken(String refreshToken) {
-        if (refreshToken == null){
+        if (refreshToken == null) {
             throw new MissingRefreshTokenException("Missing refresh token");
         }
         User user = tokenRepository.findUserByRefreshToken(refreshToken);
-        if (user == null){
+        if (user == null) {
             throw new MissingRefreshTokenException("Missing refresh token");
         }
         return Util.mapToRetrieveAccountResponse(user);

@@ -1,8 +1,13 @@
 package com.intela.realestatebackend.config;
 
+import com.intela.realestatebackend.models.Token;
+import com.intela.realestatebackend.models.User;
 import com.intela.realestatebackend.models.archetypes.TokenType;
 import com.intela.realestatebackend.repositories.TokenRepository;
+import com.intela.realestatebackend.repositories.UserRepository;
+import com.intela.realestatebackend.services.AuthService;
 import com.intela.realestatebackend.services.JwtService;
+import com.intela.realestatebackend.util.Util;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
@@ -12,7 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,6 +34,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
+    private final AuthService authService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -38,7 +44,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
-        final String userEmail;
+        final String username;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -47,7 +53,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         jwt = authHeader.split(" ")[1].trim();
         try {
-            userEmail = jwtService.extractUsername(jwt);
+            username = jwtService.extractUsername(jwt);
         } catch (SignatureException e) {
             System.err.println("JWT validation failed: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -63,15 +69,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             boolean isTokenValid;
             try {
-                isTokenValid = tokenRepository.findByTokenAndExpiredFalseAndRevokedFalse(jwt)
-                        .map(token -> !token.getRevoked() && !token.getExpired() && token.getTokenType().equals(TokenType.ACCESS))
-                        .orElseThrow(() -> new AccessDeniedException("Please enter a valid ACCESS token"));
+                Token token = tokenRepository.findByTokenAndExpiredFalseAndRevokedFalse(jwt).orElseThrow(() -> new AccessDeniedException("Please enter a valid ACCESS token"));
+                isTokenValid = !token.getRevoked() && !token.getExpired() && token.getTokenType().equals(TokenType.ACCESS);
 
                 if (!isTokenValid) {
                     throw new AccessDeniedException("Please enter a valid ACCESS token");
+                } else {
+                    User user = Util.getUserByToken(token.getToken(), jwtService, userRepository);
+                    if (!user.isAccountNonLocked()){
+                        this.authService.revokeAllUserTokens(user);
+                        throw new AccessDeniedException("User is banned until " + user.getBannedTill());
+                    }
                 }
             } catch (AccessDeniedException e) {
                 System.err.println("JWT validation failed: " + e.getMessage());
@@ -88,7 +99,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 return;
             }
 
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
             if (jwtService.isTokenValid(jwt, userDetails) && isTokenValid) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
