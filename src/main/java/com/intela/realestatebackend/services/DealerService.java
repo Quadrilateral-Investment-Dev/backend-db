@@ -13,6 +13,7 @@ import com.intela.realestatebackend.repositories.application.ApplicationReposito
 import com.intela.realestatebackend.requestResponse.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,8 @@ public class DealerService {
     }
 
     //Add property
-    public void addProperty(PropertyRequest propertyRequest,
+    @Transactional
+    public PropertyCreationResponse addProperty(PropertyRequest propertyRequest,
                             HttpServletRequest servletRequest,
                             MultipartFile[] imagesRequest
     ) throws IOException {
@@ -75,6 +77,10 @@ public class DealerService {
         //update, save saved property
         //return "Property was successfully saved";
         this.propertyRepository.save(propertyRequest);
+        PropertyCreationResponse propertyCreationResponse = new PropertyCreationResponse();
+        propertyCreationResponse.setId(propertyRequest.getId());
+        propertyCreationResponse.setPropertyOwnerId(user.getId());
+        return propertyCreationResponse;
     }
 
     //Fetch a property by property id

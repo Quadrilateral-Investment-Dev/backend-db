@@ -55,19 +55,19 @@ public class DealerController {
             )
     )
     @PostMapping("/property/add")
-    public ResponseEntity<String> addProperty(
+    public ResponseEntity<PropertyCreationResponse> addProperty(
             @RequestPart("images") MultipartFile[] images,
             @RequestPart(value = "request") PropertyRequest request,
             HttpServletRequest servletRequest
     ) {
         try {
-            dealerService.addProperty(
-                    request,
-                    servletRequest,
-                    images
-            );
+
             return ResponseEntity.created(URI.create("")).body(
-                    "Property was successfully saved"
+                    dealerService.addProperty(
+                            request,
+                            servletRequest,
+                            images
+                    )
             );
         } catch (IOException e) {
             throw new RuntimeException(e);

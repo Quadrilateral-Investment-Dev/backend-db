@@ -75,6 +75,17 @@ public class TestUtil {
         return testUserList;
     }
 
+    public static List<TestUser> testRegisterDealerUsers(MockMvc mockMvc, ObjectMapper objectMapper, List<TestUser> allUsers) throws Exception {
+        List<TestUser> testUserList = new ArrayList<>();
+        for (TestUser user : allUsers) {
+            if (user.getROLE().equals(Role.DEALER)) {
+                TestUtil.testRegister(mockMvc, objectMapper, user);
+                testUserList.add(user);
+            }
+        }
+        return testUserList;
+    }
+
     public static List<TestUser> testRegisterAdminUsers(MockMvc mockMvc, ObjectMapper objectMapper, List<TestUser> allUsers) throws Exception {
         List<TestUser> testUserList = new ArrayList<>();
         for (TestUser user : allUsers) {
