@@ -1,12 +1,11 @@
 package com.intela.realestatebackend.integration;
 
 import com.intela.realestatebackend.BaseTestContainerTest;
-import com.intela.realestatebackend.dto.ContactDetailsDTO;
-import com.intela.realestatebackend.dto.PersonalDetailsDTO;
+import com.intela.realestatebackend.models.profile.ContactDetails;
+import com.intela.realestatebackend.models.profile.PersonalDetails;
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.testUsers.TestUser;
 import com.intela.realestatebackend.testUtil.TestUtil;
-import org.junit.Assert;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -213,10 +212,10 @@ public class CustomerIntegrationTest extends BaseTestContainerTest {
         ApplicationRequest applicationRequest = new ApplicationRequest();
         BeanUtils.copyProperties(originalProfile, applicationRequest);
         if (applicationRequest.getPersonalDetails() == null){
-            applicationRequest.setPersonalDetails(new PersonalDetailsDTO());
+            applicationRequest.setPersonalDetails(new PersonalDetails());
         }
         if (applicationRequest.getContactDetails() == null){
-            applicationRequest.setContactDetails(new ContactDetailsDTO());
+            applicationRequest.setContactDetails(new ContactDetails());
         }
         applicationRequest.getPersonalDetails().setFirstName("UpdatedFirstName");
         applicationRequest.getPersonalDetails().setLastName("UpdatedLastName");

@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.intela.realestatebackend.models.User;
 import com.intela.realestatebackend.models.archetypes.BillType;
+import com.intela.realestatebackend.models.archetypes.PaymentCycle;
+import com.intela.realestatebackend.models.archetypes.PropertyStatus;
 import com.intela.realestatebackend.models.archetypes.PropertyType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
@@ -34,13 +37,19 @@ public class Property {
     private Integer id;
 
     private String propertyOwnerName;
+    @NotNull
     private String location;
     private String description;
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private PaymentCycle paymentCycle;
     private Integer numberOfRooms;
     @Enumerated(EnumType.STRING)
+    @NotNull
     private PropertyType propertyType;
     @Enumerated(EnumType.STRING)
     private PropertyStatus status = PropertyStatus.AVAILABLE;
+    @NotNull
     private Long price;
     @Enumerated(EnumType.STRING)
     private BillType billType;
@@ -49,6 +58,7 @@ public class Property {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "feature_id")
+    @NotNull
     private Feature feature;
 
     @OneToMany(
@@ -98,4 +108,12 @@ public class Property {
     @CreationTimestamp
     @Column(updatable = false)
     private Date createdDate;
+
+    public Integer getNumberOfRooms(){
+        try {
+            return feature.getBedrooms() + feature.getLounges();
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Feature or any of its fields cannot be null");
+        }
+    }
 }

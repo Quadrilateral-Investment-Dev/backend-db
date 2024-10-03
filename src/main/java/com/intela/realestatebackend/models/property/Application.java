@@ -2,7 +2,7 @@ package com.intela.realestatebackend.models.property;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.intela.realestatebackend.models.User;
-import com.intela.realestatebackend.models.profile.ApplicationStatus;
+import com.intela.realestatebackend.models.archetypes.ApplicationStatus;
 import com.intela.realestatebackend.models.profile.Profile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;

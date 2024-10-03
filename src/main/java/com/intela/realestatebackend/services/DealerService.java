@@ -1,7 +1,7 @@
 package com.intela.realestatebackend.services;
 
 import com.intela.realestatebackend.models.User;
-import com.intela.realestatebackend.models.profile.ApplicationStatus;
+import com.intela.realestatebackend.models.archetypes.ApplicationStatus;
 import com.intela.realestatebackend.models.property.Application;
 import com.intela.realestatebackend.models.property.Plan;
 import com.intela.realestatebackend.models.property.Property;

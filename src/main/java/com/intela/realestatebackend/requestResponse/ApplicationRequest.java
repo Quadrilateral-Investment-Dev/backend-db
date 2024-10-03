@@ -1,7 +1,7 @@
 package com.intela.realestatebackend.requestResponse;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.intela.realestatebackend.models.profile.ApplicationStatus;
+import com.intela.realestatebackend.models.archetypes.ApplicationStatus;
 import com.intela.realestatebackend.models.profile.ID;
 import com.intela.realestatebackend.models.property.Application;
 import jakarta.persistence.Entity;

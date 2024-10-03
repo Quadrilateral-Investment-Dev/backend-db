@@ -2,10 +2,6 @@ package com.intela.realestatebackend.integration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.intela.realestatebackend.BaseTestContainerTest;
-import com.intela.realestatebackend.dto.ContactDetailsDTO;
-import com.intela.realestatebackend.dto.PersonalDetailsDTO;
-import com.intela.realestatebackend.models.User;
-import com.intela.realestatebackend.models.archetypes.Role;
 import com.intela.realestatebackend.models.profile.ContactDetails;
 import com.intela.realestatebackend.models.profile.PersonalDetails;
 import com.intela.realestatebackend.requestResponse.*;
@@ -20,7 +16,6 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.nio.file.Paths;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,10 +93,10 @@ public class AdminIntegrationTest extends BaseTestContainerTest {
         UpdateProfileRequest updateProfileRequest = new UpdateProfileRequest();
         BeanUtils.copyProperties(originalProfile, updateProfileRequest);
         if (updateProfileRequest.getPersonalDetails() == null){
-            updateProfileRequest.setPersonalDetails(new PersonalDetailsDTO());
+            updateProfileRequest.setPersonalDetails(new PersonalDetails());
         }
         if (updateProfileRequest.getContactDetails() == null){
-            updateProfileRequest.setContactDetails(new ContactDetailsDTO());
+            updateProfileRequest.setContactDetails(new ContactDetails());
         }
         updateProfileRequest.getPersonalDetails().setFirstName("UpdatedFirstName");
         updateProfileRequest.getPersonalDetails().setLastName("UpdatedLastName");

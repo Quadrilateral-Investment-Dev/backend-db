@@ -2,8 +2,7 @@ package com.intela.realestatebackend.integration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.intela.realestatebackend.BaseTestContainerTest;
-import com.intela.realestatebackend.dto.ContactDetailsDTO;
-import com.intela.realestatebackend.models.archetypes.Role;
+import com.intela.realestatebackend.models.profile.ContactDetails;
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.testUsers.TestUser;
 import com.intela.realestatebackend.testUtil.TestUtil;
@@ -15,7 +14,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +53,7 @@ public class UserIntegrationTest extends BaseTestContainerTest {
         RetrieveProfileResponse retrieveProfileResponse = objectMapper.readValue(s, RetrieveProfileResponse.class);
         assertNull(retrieveProfileResponse.getContactDetails());
 
-        ContactDetailsDTO contactDetails = new ContactDetailsDTO();
+        ContactDetails contactDetails = new ContactDetails();
         contactDetails.setContactEmail(testUserList.get(0).getEMAIL());
         contactDetails.setContactNumber(testUserList.get(0).getMOBILE_NUMBER());
 
@@ -89,7 +87,7 @@ public class UserIntegrationTest extends BaseTestContainerTest {
         assertEquals(retrieveProfileResponse1.getContactDetails().getContactEmail(), contactDetails.getContactEmail());
         assertEquals(retrieveProfileResponse1.getContactDetails().getContactNumber(), contactDetails.getContactNumber());
 
-        contactDetails = new ContactDetailsDTO();
+        contactDetails = new ContactDetails();
         contactDetails.setContactEmail(testUserList.get(1).getEMAIL());
         contactDetails.setContactNumber(testUserList.get(1).getMOBILE_NUMBER());
 

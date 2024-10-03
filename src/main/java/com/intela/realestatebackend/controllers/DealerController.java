@@ -157,7 +157,7 @@ public class DealerController {
         return ResponseEntity.ok("Images added successfully");
     }
 
-    @DeleteMapping("property/image/{imageId}")
+    @DeleteMapping("/property/image/{imageId}")
     public ResponseEntity<String> deleteImageById(@PathVariable Integer imageId) {
         this.dealerService.deleteImageById(imageId);
         return ResponseEntity.accepted().body("Image deleted successfully");

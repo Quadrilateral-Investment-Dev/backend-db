@@ -2,6 +2,7 @@ package com.intela.realestatebackend.services.data;
 
 import com.intela.realestatebackend.models.User;
 import com.intela.realestatebackend.models.archetypes.BillType;
+import com.intela.realestatebackend.models.archetypes.PaymentCycle;
 import com.intela.realestatebackend.models.archetypes.PropertyType;
 import com.intela.realestatebackend.models.archetypes.Role;
 import com.intela.realestatebackend.models.property.Feature;
@@ -52,6 +53,7 @@ public class PropertyDataLoader implements CommandLineRunner {
                         .numberOfRooms(3 + i)  // Dummy number of rooms
                         .propertyType(PropertyType.HOUSE)  // Assuming PropertyType.HOUSE is defined
                         .feature(feature)
+                        .paymentCycle(PaymentCycle.WEEKLY)
                         .price(500000L + (i * 10000L))  // Dummy price
                         .billType(BillType.INCLUDED)  // Assuming BillType.MONTHLY is defined
                         .availableFrom(Timestamp.from(Instant.now()))
@@ -93,6 +95,7 @@ public class PropertyDataLoader implements CommandLineRunner {
                             .numberOfRooms(property.getNumberOfRooms())
                             .propertyType(PropertyType.ENSUITE)
                             .feature(feature)
+                            .paymentCycle(PaymentCycle.WEEKLY)
                             .price(property.getPrice() + (i * 10000L))  // Adjust price for each plan
                             .billType(property.getBillType())
                             .availableFrom(Timestamp.from(Instant.now()))
