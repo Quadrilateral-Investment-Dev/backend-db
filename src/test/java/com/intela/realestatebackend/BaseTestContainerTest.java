@@ -1,5 +1,6 @@
 package com.intela.realestatebackend;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,11 +24,12 @@ public class BaseTestContainerTest {
     private static MySQLContainer<?> mysqlContainer;
     @Autowired
     protected MockMvc mockMvc;
-    @Autowired
-    protected ObjectMapper objectMapper;
+
+    protected static ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeAll
     public static void setUp() {
+        objectMapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
         if (!isMySQLRunning()) {
             // Start a fallback MySQL container if the existing one is not available
             mysqlContainer = new MySQLContainer<>("mysql:8.0")

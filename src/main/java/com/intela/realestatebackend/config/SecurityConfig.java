@@ -51,7 +51,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/v1/properties/**").permitAll()
 
-                        .requestMatchers("/api/v1/user/**").hasAnyRole(CUSTOMER.name(), ADMIN.name())
+                        .requestMatchers("/api/v1/user/**").hasAnyRole(CUSTOMER.name(), ADMIN.name(), DEALER.name())
 
                         //DEALER ENDPOINTS
                         .requestMatchers("/api/v1/dealer/**").hasAnyRole(DEALER.name(), ADMIN.name())

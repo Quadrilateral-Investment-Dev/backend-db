@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
@@ -296,6 +297,47 @@ public class Util {
                     }
                 }
         );
+    }
+
+    public static boolean isImageOrPdf(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return false; // No file uploaded
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null) {
+            return false;
+        }
+
+        // Check if the content type is an image or a PDF
+        return contentType.startsWith("image/") || contentType.equals("application/pdf");
+    }
+
+    public static boolean isImage(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return false; // No file uploaded
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null) {
+            return false;
+        }
+
+        // Check if the content type is an image or a PDF
+        return contentType.startsWith("image/");
+    }
+
+    public static Long toFileSize(String s) {
+        DataSize dataSize = DataSize.parse(s);
+        return dataSize.toBytes();
+    }
+    public static boolean exceedsSizeLimit(MultipartFile file, long sizeLimit) {
+        if (file == null || file.isEmpty()) {
+            return false; // No file uploaded
+        }
+
+        long fileSize = file.getSize(); // Size in bytes
+        return fileSize > sizeLimit;
     }
 
     public static ApplicationResponse mapApplicationToApplicationResponse(Application application) {
