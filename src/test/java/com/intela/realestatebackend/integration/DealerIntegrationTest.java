@@ -9,7 +9,6 @@ import com.intela.realestatebackend.models.property.Feature;
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.testUsers.TestUser;
 import com.intela.realestatebackend.testUtil.TestUtil;
-import org.junit.Before;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,21 +16,21 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Paths;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class DealerIntegrationTest extends BaseTestContainerTest {
+    private static List<TestUser> dealerUsers;
     @Autowired
     private List<TestUser> allUsers;
-    private static List<TestUser> dealerUsers;
 
     @Test
     @Order(1)
@@ -368,14 +367,21 @@ public class DealerIntegrationTest extends BaseTestContainerTest {
         BeanUtils.copyProperties(firstProperty, updatedProperty);
         updatedProperty.setDescription("Updated description");
 
-        // Convert the updated property to JSON
-        String updatedPropertyJson = objectMapper.writeValueAsString(updatedProperty);
+        MockMultipartFile multipartFile = new MockMultipartFile(
+                "request",
+                "",
+                "application/json",
+                objectMapper.writeValueAsBytes(updatedProperty)
+        );
 
         // Step 5: Perform the update using PUT or PATCH (depending on your API implementation)
-        mockMvc.perform(put("/api/v1/dealer/property/{propertyId}", propertyId)
+        mockMvc.perform(multipart("/api/v1/dealer/property/{propertyId}", propertyId)
+                        .file(multipartFile)
                         .header("Authorization", "Bearer " + accessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(updatedPropertyJson))
+                        .with(request -> {
+                            request.setMethod("PUT");  // Override POST to PUT
+                            return request;
+                        }))
                 .andExpect(status().isOk());
 
         // Step 6: Retrieve the updated property

@@ -43,7 +43,6 @@ public class Property {
     @Enumerated(EnumType.STRING)
     @NotNull
     private PaymentCycle paymentCycle;
-    private Integer numberOfRooms;
     @Enumerated(EnumType.STRING)
     @NotNull
     private PropertyType propertyType;
@@ -109,11 +108,10 @@ public class Property {
     @Column(updatable = false)
     private Date createdDate;
 
-    public Integer getNumberOfRooms(){
-        try {
-            return feature.getBedrooms() + feature.getLounges();
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Feature or any of its fields cannot be null");
+    public Integer getNumberOfRooms() {
+        if (feature == null) {
+            return 0;  // Or some other default value
         }
+        return feature.getBedrooms() + feature.getLounges();
     }
 }

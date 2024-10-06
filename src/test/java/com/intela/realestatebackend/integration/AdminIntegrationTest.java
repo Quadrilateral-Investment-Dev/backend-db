@@ -26,11 +26,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class AdminIntegrationTest extends BaseTestContainerTest {
-    @Autowired
-    private List<TestUser> allUsers;
-
     private static List<TestUser> adminUsers;
     private static List<TestUser> customerUsers;
+    @Autowired
+    private List<TestUser> allUsers;
 
     @Test
     @Order(1)
@@ -92,10 +91,10 @@ public class AdminIntegrationTest extends BaseTestContainerTest {
         // Step 3: Admin updates customer's profile
         UpdateProfileRequest updateProfileRequest = new UpdateProfileRequest();
         BeanUtils.copyProperties(originalProfile, updateProfileRequest);
-        if (updateProfileRequest.getPersonalDetails() == null){
+        if (updateProfileRequest.getPersonalDetails() == null) {
             updateProfileRequest.setPersonalDetails(new PersonalDetails());
         }
-        if (updateProfileRequest.getContactDetails() == null){
+        if (updateProfileRequest.getContactDetails() == null) {
             updateProfileRequest.setContactDetails(new ContactDetails());
         }
         updateProfileRequest.getPersonalDetails().setFirstName("UpdatedFirstName");

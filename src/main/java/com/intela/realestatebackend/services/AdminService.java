@@ -8,9 +8,9 @@ import com.intela.realestatebackend.repositories.UserRepository;
 import com.intela.realestatebackend.repositories.application.IDRepository;
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.util.Util;
-import jakarta.persistence.Entity;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,8 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.intela.realestatebackend.util.Util.getUserByToken;
 
 @Service
 @RequiredArgsConstructor
@@ -80,6 +78,7 @@ public class AdminService {
         return Util.mapToUpdateAccountResponse(updatedFields);
     }
 
+    @Transactional
     public List<RetrieveAccountResponse> listAllAccounts() {
         // Retrieve all accounts and map them to RetrieveAccountResponse objects
         return userRepository.findAll().stream()

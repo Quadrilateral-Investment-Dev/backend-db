@@ -15,12 +15,11 @@ import java.util.List;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class EdgeCasesIntegrationTest extends BaseTestContainerTest {
-    @Autowired
-    private List<TestUser> allUsers;
-
     private static List<TestUser> adminUsers;
     private static List<TestUser> customerUsers;
     private static List<TestUser> dealerUsers;
+    @Autowired
+    private List<TestUser> allUsers;
 
     @Test
     @Order(1)

@@ -34,7 +34,7 @@ application:
     file-storage:
       image-directory: ./resources/images
     maximum-file-size:
-      property-images: 10M
+      property-images: 10000000
 
     #logging:
     #  level:

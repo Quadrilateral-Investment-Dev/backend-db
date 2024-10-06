@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
@@ -327,10 +326,6 @@ public class Util {
         return contentType.startsWith("image/");
     }
 
-    public static Long toFileSize(String s) {
-        DataSize dataSize = DataSize.parse(s);
-        return dataSize.toBytes();
-    }
     public static boolean exceedsSizeLimit(MultipartFile file, long sizeLimit) {
         if (file == null || file.isEmpty()) {
             return false; // No file uploaded

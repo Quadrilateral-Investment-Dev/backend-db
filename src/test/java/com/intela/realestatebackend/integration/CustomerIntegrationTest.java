@@ -20,15 +20,15 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class CustomerIntegrationTest extends BaseTestContainerTest {
+    private static List<TestUser> customerUsers;
     @Autowired
     private List<TestUser> allUsers;
-
-    private static List<TestUser> customerUsers;
 
     @Test
     @Order(1)
@@ -211,10 +211,10 @@ public class CustomerIntegrationTest extends BaseTestContainerTest {
         // Step 3: Admin updates customer's profile
         ApplicationRequest applicationRequest = new ApplicationRequest();
         BeanUtils.copyProperties(originalProfile, applicationRequest);
-        if (applicationRequest.getPersonalDetails() == null){
+        if (applicationRequest.getPersonalDetails() == null) {
             applicationRequest.setPersonalDetails(new PersonalDetails());
         }
-        if (applicationRequest.getContactDetails() == null){
+        if (applicationRequest.getContactDetails() == null) {
             applicationRequest.setContactDetails(new ContactDetails());
         }
         applicationRequest.getPersonalDetails().setFirstName("UpdatedFirstName");

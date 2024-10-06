@@ -50,7 +50,6 @@ public class PropertyDataLoader implements CommandLineRunner {
                         .propertyOwnerName(dealer.getFirstName() + " " + dealer.getLastName())
                         .location("Dealer Street " + i)
                         .description("Property " + i + " owned by " + dealer.getFirstName())
-                        .numberOfRooms(3 + i)  // Dummy number of rooms
                         .propertyType(PropertyType.HOUSE)  // Assuming PropertyType.HOUSE is defined
                         .feature(feature)
                         .paymentCycle(PaymentCycle.WEEKLY)
@@ -92,7 +91,6 @@ public class PropertyDataLoader implements CommandLineRunner {
                             .user(property.getUser())
                             .location(property.getLocation() + " - Plan " + i)
                             .description("Plan " + i + " for property " + property.getId())
-                            .numberOfRooms(property.getNumberOfRooms())
                             .propertyType(PropertyType.ENSUITE)
                             .feature(feature)
                             .paymentCycle(PaymentCycle.WEEKLY)

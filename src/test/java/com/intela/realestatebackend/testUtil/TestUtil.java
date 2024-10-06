@@ -1,6 +1,5 @@
 package com.intela.realestatebackend.testUtil;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intela.realestatebackend.models.archetypes.Role;
 import com.intela.realestatebackend.requestResponse.*;

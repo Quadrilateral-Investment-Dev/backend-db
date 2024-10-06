@@ -21,11 +21,10 @@ import java.sql.SQLException;
 @SpringBootTest
 public class BaseTestContainerTest {
 
+    protected static ObjectMapper objectMapper = new ObjectMapper();
     private static MySQLContainer<?> mysqlContainer;
     @Autowired
     protected MockMvc mockMvc;
-
-    protected static ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeAll
     public static void setUp() {

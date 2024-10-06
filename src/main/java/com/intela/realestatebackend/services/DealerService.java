@@ -11,12 +11,10 @@ import com.intela.realestatebackend.repositories.PropertyRepository;
 import com.intela.realestatebackend.repositories.UserRepository;
 import com.intela.realestatebackend.repositories.application.ApplicationRepository;
 import com.intela.realestatebackend.requestResponse.*;
-import com.intela.realestatebackend.util.Util;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,8 +53,8 @@ public class DealerService {
     //Add property
     @Transactional
     public PropertyCreationResponse addProperty(PropertyRequest propertyRequest,
-                            HttpServletRequest servletRequest,
-                            MultipartFile[] imagesRequest
+                                                HttpServletRequest servletRequest,
+                                                MultipartFile[] imagesRequest
     ) throws IOException {
         User user = getUserByToken(servletRequest, jwtService, this.userRepository);
         // final Image savedImage;
@@ -121,9 +119,6 @@ public class DealerService {
         if (!property.getPrice().toString().isBlank()) {
             dbProperty.setPrice(property.getPrice());
         }
-        if (!property.getNumberOfRooms().toString().isBlank()) {
-            dbProperty.setNumberOfRooms(property.getNumberOfRooms());
-        }
         if (!property.getFeature().getBathrooms().toString().isBlank()) {
             dbProperty.getFeature().setBathrooms(property.getFeature().getBathrooms());
         }
@@ -138,12 +133,12 @@ public class DealerService {
         }
 
         //Update images
-        if (imagesRequest.length > 0) {
+        if (imagesRequest != null && imagesRequest.length > 0) {
             List<PropertyImage> propertyImages = new ArrayList<>();
             multipartFileToPropertyImageList(dbProperty, imagesRequest, propertyImages, imageService);
             dbProperty.setPropertyImages(propertyImages);
-            this.propertyRepository.save(dbProperty);
         }
+        this.propertyRepository.save(dbProperty);
         //return "Property updated successfully";
     }
 

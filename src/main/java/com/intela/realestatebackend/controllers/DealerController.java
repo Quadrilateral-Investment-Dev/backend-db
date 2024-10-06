@@ -13,7 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.unit.DataSize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +29,7 @@ public class DealerController {
     private final DealerService dealerService;
     private final ObjectMapper objectMapper;
     @Value(value = "${application.custom.maximum-file-size.property-images}")
-    private String MAX_FILE_SIZE_PROPERTY_IMAGES;
+    private Integer MAX_FILE_SIZE_PROPERTY_IMAGES;
 
     @Operation(
             summary = "Upload a new property with images",
@@ -65,12 +64,14 @@ public class DealerController {
             @RequestPart(value = "request") PropertyRequest request,
             HttpServletRequest servletRequest
     ) {
-        for (MultipartFile multipartFile : images){
-            if (!Util.isImage(multipartFile)){
-                return ResponseEntity.status(415).body(null);
-            }
-            if (Util.exceedsSizeLimit(multipartFile, Util.toFileSize(MAX_FILE_SIZE_PROPERTY_IMAGES))){
-                return ResponseEntity.status(413).body(null);
+        if (images != null) {
+            for (MultipartFile multipartFile : images) {
+                if (!Util.isImage(multipartFile)) {
+                    return ResponseEntity.status(415).body(null);
+                }
+                if (Util.exceedsSizeLimit(multipartFile, MAX_FILE_SIZE_PROPERTY_IMAGES)) {
+                    return ResponseEntity.status(413).body(null);
+                }
             }
         }
         try {
@@ -141,7 +142,7 @@ public class DealerController {
                                     {
                                             @SchemaProperty(
                                                     name = "request",
-                                                    schema = @Schema(implementation = UpdateProfileRequest.class)
+                                                    schema = @Schema(implementation = PropertyRequest.class)
                                             ),
                                             @SchemaProperty(
                                                     name = "images",
@@ -157,15 +158,17 @@ public class DealerController {
     @PutMapping("/property/{propertyId}")
     public ResponseEntity<String> updatePropertyById(
             @PathVariable Integer propertyId,
-            @RequestParam("images") MultipartFile[] images,
-            @RequestParam(value = "request") PropertyRequest request
+            @RequestPart(value = "images", required = false) MultipartFile[] images,
+            @RequestPart(value = "request") PropertyRequest request
     ) {
-        for (MultipartFile multipartFile : images){
-            if (!Util.isImage(multipartFile)){
-                return ResponseEntity.status(415).body(null);
-            }
-            if (Util.exceedsSizeLimit(multipartFile, Util.toFileSize(MAX_FILE_SIZE_PROPERTY_IMAGES))){
-                return ResponseEntity.status(413).body(null);
+        if (images != null) {
+            for (MultipartFile multipartFile : images) {
+                if (!Util.isImage(multipartFile)) {
+                    return ResponseEntity.status(415).body(null);
+                }
+                if (Util.exceedsSizeLimit(multipartFile, MAX_FILE_SIZE_PROPERTY_IMAGES)) {
+                    return ResponseEntity.status(413).body(null);
+                }
             }
         }
         this.dealerService.updatePropertyById(request, images, propertyId);
@@ -174,11 +177,11 @@ public class DealerController {
 
     @PostMapping("/property/{propertyId}")
     public ResponseEntity<String> addImageToProperty(@RequestBody MultipartFile[] images, @PathVariable Integer propertyId) {
-        for (MultipartFile multipartFile : images){
-            if (!Util.isImage(multipartFile)){
+        for (MultipartFile multipartFile : images) {
+            if (!Util.isImage(multipartFile)) {
                 return ResponseEntity.status(415).body(null);
             }
-            if (Util.exceedsSizeLimit(multipartFile, Util.toFileSize(MAX_FILE_SIZE_PROPERTY_IMAGES))){
+            if (Util.exceedsSizeLimit(multipartFile, MAX_FILE_SIZE_PROPERTY_IMAGES)) {
                 return ResponseEntity.status(413).body(null);
             }
         }
@@ -225,12 +228,14 @@ public class DealerController {
                                                     @RequestPart(value = "request") PlanRequest request,
                                                     HttpServletRequest servletRequest) {
         try {
-            for (MultipartFile multipartFile : images){
-                if (!Util.isImage(multipartFile)){
-                    return ResponseEntity.status(415).body(null);
-                }
-                if (Util.exceedsSizeLimit(multipartFile, Util.toFileSize(MAX_FILE_SIZE_PROPERTY_IMAGES))){
-                    return ResponseEntity.status(413).body(null);
+            if (images != null) {
+                for (MultipartFile multipartFile : images) {
+                    if (!Util.isImage(multipartFile)) {
+                        return ResponseEntity.status(415).body(null);
+                    }
+                    if (Util.exceedsSizeLimit(multipartFile, MAX_FILE_SIZE_PROPERTY_IMAGES)) {
+                        return ResponseEntity.status(413).body(null);
+                    }
                 }
             }
             dealerService.addPlan(
