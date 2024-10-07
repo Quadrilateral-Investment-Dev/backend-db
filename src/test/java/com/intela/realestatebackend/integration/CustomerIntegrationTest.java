@@ -1,12 +1,11 @@
 package com.intela.realestatebackend.integration;
 
 import com.intela.realestatebackend.BaseTestContainerTest;
-import com.intela.realestatebackend.dto.ContactDetailsDTO;
-import com.intela.realestatebackend.dto.PersonalDetailsDTO;
+import com.intela.realestatebackend.models.profile.ContactDetails;
+import com.intela.realestatebackend.models.profile.PersonalDetails;
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.testUsers.TestUser;
 import com.intela.realestatebackend.testUtil.TestUtil;
-import org.junit.Assert;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +20,15 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class CustomerIntegrationTest extends BaseTestContainerTest {
+    private static List<TestUser> customerUsers;
     @Autowired
     private List<TestUser> allUsers;
-
-    private static List<TestUser> customerUsers;
 
     @Test
     @Order(1)
@@ -212,11 +211,11 @@ public class CustomerIntegrationTest extends BaseTestContainerTest {
         // Step 3: Admin updates customer's profile
         ApplicationRequest applicationRequest = new ApplicationRequest();
         BeanUtils.copyProperties(originalProfile, applicationRequest);
-        if (applicationRequest.getPersonalDetails() == null){
-            applicationRequest.setPersonalDetails(new PersonalDetailsDTO());
+        if (applicationRequest.getPersonalDetails() == null) {
+            applicationRequest.setPersonalDetails(new PersonalDetails());
         }
-        if (applicationRequest.getContactDetails() == null){
-            applicationRequest.setContactDetails(new ContactDetailsDTO());
+        if (applicationRequest.getContactDetails() == null) {
+            applicationRequest.setContactDetails(new ContactDetails());
         }
         applicationRequest.getPersonalDetails().setFirstName("UpdatedFirstName");
         applicationRequest.getPersonalDetails().setLastName("UpdatedLastName");

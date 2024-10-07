@@ -1,6 +1,5 @@
 package com.intela.realestatebackend.requestResponse;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Data;
 
 @Data

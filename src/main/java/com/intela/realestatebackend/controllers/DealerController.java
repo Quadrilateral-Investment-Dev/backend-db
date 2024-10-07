@@ -3,10 +3,12 @@ package com.intela.realestatebackend.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.services.DealerService;
+import com.intela.realestatebackend.util.Util;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -26,6 +28,8 @@ import java.util.Optional;
 public class DealerController {
     private final DealerService dealerService;
     private final ObjectMapper objectMapper;
+    @Value(value = "${application.custom.maximum-file-size.property-images}")
+    private Integer MAX_FILE_SIZE_PROPERTY_IMAGES;
 
     @Operation(
             summary = "Upload a new property with images",
@@ -55,19 +59,29 @@ public class DealerController {
             )
     )
     @PostMapping("/property/add")
-    public ResponseEntity<String> addProperty(
+    public ResponseEntity<PropertyCreationResponse> addProperty(
             @RequestPart("images") MultipartFile[] images,
             @RequestPart(value = "request") PropertyRequest request,
             HttpServletRequest servletRequest
     ) {
+        if (images != null) {
+            for (MultipartFile multipartFile : images) {
+                if (!Util.isImage(multipartFile)) {
+                    return ResponseEntity.status(415).body(null);
+                }
+                if (Util.exceedsSizeLimit(multipartFile, MAX_FILE_SIZE_PROPERTY_IMAGES)) {
+                    return ResponseEntity.status(413).body(null);
+                }
+            }
+        }
         try {
-            dealerService.addProperty(
-                    request,
-                    servletRequest,
-                    images
-            );
+
             return ResponseEntity.created(URI.create("")).body(
-                    "Property was successfully saved"
+                    dealerService.addProperty(
+                            request,
+                            servletRequest,
+                            images
+                    )
             );
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -128,7 +142,7 @@ public class DealerController {
                                     {
                                             @SchemaProperty(
                                                     name = "request",
-                                                    schema = @Schema(implementation = UpdateProfileRequest.class)
+                                                    schema = @Schema(implementation = PropertyRequest.class)
                                             ),
                                             @SchemaProperty(
                                                     name = "images",
@@ -144,20 +158,38 @@ public class DealerController {
     @PutMapping("/property/{propertyId}")
     public ResponseEntity<String> updatePropertyById(
             @PathVariable Integer propertyId,
-            @RequestParam("images") MultipartFile[] images,
-            @RequestParam(value = "request") PropertyRequest request
+            @RequestPart(value = "images", required = false) MultipartFile[] images,
+            @RequestPart(value = "request") PropertyRequest request
     ) {
+        if (images != null) {
+            for (MultipartFile multipartFile : images) {
+                if (!Util.isImage(multipartFile)) {
+                    return ResponseEntity.status(415).body(null);
+                }
+                if (Util.exceedsSizeLimit(multipartFile, MAX_FILE_SIZE_PROPERTY_IMAGES)) {
+                    return ResponseEntity.status(413).body(null);
+                }
+            }
+        }
         this.dealerService.updatePropertyById(request, images, propertyId);
         return ResponseEntity.ok("Property updated successfully");
     }
 
     @PostMapping("/property/{propertyId}")
     public ResponseEntity<String> addImageToProperty(@RequestBody MultipartFile[] images, @PathVariable Integer propertyId) {
+        for (MultipartFile multipartFile : images) {
+            if (!Util.isImage(multipartFile)) {
+                return ResponseEntity.status(415).body(null);
+            }
+            if (Util.exceedsSizeLimit(multipartFile, MAX_FILE_SIZE_PROPERTY_IMAGES)) {
+                return ResponseEntity.status(413).body(null);
+            }
+        }
         this.dealerService.addImagesToProperty(images, propertyId);
         return ResponseEntity.ok("Images added successfully");
     }
 
-    @DeleteMapping("property/image/{imageId}")
+    @DeleteMapping("/property/image/{imageId}")
     public ResponseEntity<String> deleteImageById(@PathVariable Integer imageId) {
         this.dealerService.deleteImageById(imageId);
         return ResponseEntity.accepted().body("Image deleted successfully");
@@ -196,6 +228,16 @@ public class DealerController {
                                                     @RequestPart(value = "request") PlanRequest request,
                                                     HttpServletRequest servletRequest) {
         try {
+            if (images != null) {
+                for (MultipartFile multipartFile : images) {
+                    if (!Util.isImage(multipartFile)) {
+                        return ResponseEntity.status(415).body(null);
+                    }
+                    if (Util.exceedsSizeLimit(multipartFile, MAX_FILE_SIZE_PROPERTY_IMAGES)) {
+                        return ResponseEntity.status(413).body(null);
+                    }
+                }
+            }
             dealerService.addPlan(
                     propertyId,
                     request,
@@ -226,7 +268,7 @@ public class DealerController {
         );
     }
 
-    @GetMapping("/applications/{propertyId}")
+    @GetMapping("/applications/property/{propertyId}")
     public ResponseEntity<List<ApplicationResponse>> listAllApplicationsByPropertyId(@PathVariable Integer propertyId) {
         return ResponseEntity.created(URI.create("")).body(
                 dealerService.listAllApplicationsByPropertyId(propertyId)

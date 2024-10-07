@@ -2,10 +2,6 @@ package com.intela.realestatebackend.integration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.intela.realestatebackend.BaseTestContainerTest;
-import com.intela.realestatebackend.dto.ContactDetailsDTO;
-import com.intela.realestatebackend.dto.PersonalDetailsDTO;
-import com.intela.realestatebackend.models.User;
-import com.intela.realestatebackend.models.archetypes.Role;
 import com.intela.realestatebackend.models.profile.ContactDetails;
 import com.intela.realestatebackend.models.profile.PersonalDetails;
 import com.intela.realestatebackend.requestResponse.*;
@@ -20,7 +16,6 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.nio.file.Paths;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,11 +26,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class AdminIntegrationTest extends BaseTestContainerTest {
-    @Autowired
-    private List<TestUser> allUsers;
-
     private static List<TestUser> adminUsers;
     private static List<TestUser> customerUsers;
+    @Autowired
+    private List<TestUser> allUsers;
 
     @Test
     @Order(1)
@@ -97,11 +91,11 @@ public class AdminIntegrationTest extends BaseTestContainerTest {
         // Step 3: Admin updates customer's profile
         UpdateProfileRequest updateProfileRequest = new UpdateProfileRequest();
         BeanUtils.copyProperties(originalProfile, updateProfileRequest);
-        if (updateProfileRequest.getPersonalDetails() == null){
-            updateProfileRequest.setPersonalDetails(new PersonalDetailsDTO());
+        if (updateProfileRequest.getPersonalDetails() == null) {
+            updateProfileRequest.setPersonalDetails(new PersonalDetails());
         }
-        if (updateProfileRequest.getContactDetails() == null){
-            updateProfileRequest.setContactDetails(new ContactDetailsDTO());
+        if (updateProfileRequest.getContactDetails() == null) {
+            updateProfileRequest.setContactDetails(new ContactDetails());
         }
         updateProfileRequest.getPersonalDetails().setFirstName("UpdatedFirstName");
         updateProfileRequest.getPersonalDetails().setLastName("UpdatedLastName");

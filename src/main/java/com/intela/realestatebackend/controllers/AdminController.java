@@ -70,7 +70,7 @@ public class AdminController {
     @PostMapping("/user-management/profiles/{userId}")
     public ResponseEntity<String> updateProfile(
             @PathVariable Integer userId,
-            @RequestPart("images") MultipartFile[] images,
+            @RequestPart(value = "images", required = false) MultipartFile[] images,
             @RequestPart("request") UpdateProfileRequest request
     ) {
         try {

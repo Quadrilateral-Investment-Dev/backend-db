@@ -49,7 +49,7 @@ public class UserController {
     @PostMapping("/profile")
     public ResponseEntity<String> updateProfile(
             HttpServletRequest servletRequest,
-            @RequestPart("images") MultipartFile[] images,
+            @RequestPart(value = "images", required = false) MultipartFile[] images,
             @RequestPart("request") UpdateProfileRequest request
     ) {
         try {

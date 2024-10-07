@@ -1,11 +1,10 @@
 package com.intela.realestatebackend.requestResponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.intela.realestatebackend.models.property.Plan;
-import com.intela.realestatebackend.models.property.Property;
-import com.intela.realestatebackend.models.property.PropertyImage;
-import com.intela.realestatebackend.models.property.PropertyStatus;
+import com.intela.realestatebackend.models.archetypes.PropertyStatus;
+import com.intela.realestatebackend.models.property.*;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,15 +23,18 @@ import java.util.Set;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PropertyRequest extends Property {
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnore
     private List<PropertyImage> propertyImages;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Set<Plan> plans = new HashSet<>();
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private PropertyStatus status;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnore
+    private Set<Plan> plans;
+    @JsonIgnore
     private Date createdDate;
     @JsonIgnore
     private Property parentListing;
+    @JsonIgnore
+    private Set<Application> applications;
+    @JsonIgnore
+    private Set<Bookmark> bookmarks;
 }

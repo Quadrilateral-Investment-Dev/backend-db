@@ -210,6 +210,9 @@ public class Util {
         existingInfo.setEmploymentHistories(request.getEmploymentHistories());
 
         // Update PersonalDetails if changed
+        if (existingInfo.getPersonalDetails() != null) {
+            request.getPersonalDetails().setId(existingInfo.getPersonalDetails().getId());
+        }
         existingInfo.setPersonalDetails(request.getPersonalDetails());
 
         // Update References if changed
@@ -296,6 +299,43 @@ public class Util {
                     }
                 }
         );
+    }
+
+    public static boolean isImageOrPdf(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return false; // No file uploaded
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null) {
+            return false;
+        }
+
+        // Check if the content type is an image or a PDF
+        return contentType.startsWith("image/") || contentType.equals("application/pdf");
+    }
+
+    public static boolean isImage(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return false; // No file uploaded
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null) {
+            return false;
+        }
+
+        // Check if the content type is an image or a PDF
+        return contentType.startsWith("image/");
+    }
+
+    public static boolean exceedsSizeLimit(MultipartFile file, long sizeLimit) {
+        if (file == null || file.isEmpty()) {
+            return false; // No file uploaded
+        }
+
+        long fileSize = file.getSize(); // Size in bytes
+        return fileSize > sizeLimit;
     }
 
     public static ApplicationResponse mapApplicationToApplicationResponse(Application application) {

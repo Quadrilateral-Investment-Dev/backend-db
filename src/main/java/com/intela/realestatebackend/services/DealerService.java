@@ -1,7 +1,7 @@
 package com.intela.realestatebackend.services;
 
 import com.intela.realestatebackend.models.User;
-import com.intela.realestatebackend.models.profile.ApplicationStatus;
+import com.intela.realestatebackend.models.archetypes.ApplicationStatus;
 import com.intela.realestatebackend.models.property.Application;
 import com.intela.realestatebackend.models.property.Plan;
 import com.intela.realestatebackend.models.property.Property;
@@ -13,6 +13,7 @@ import com.intela.realestatebackend.repositories.application.ApplicationReposito
 import com.intela.realestatebackend.requestResponse.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,9 +51,10 @@ public class DealerService {
     }
 
     //Add property
-    public void addProperty(PropertyRequest propertyRequest,
-                            HttpServletRequest servletRequest,
-                            MultipartFile[] imagesRequest
+    @Transactional
+    public PropertyCreationResponse addProperty(PropertyRequest propertyRequest,
+                                                HttpServletRequest servletRequest,
+                                                MultipartFile[] imagesRequest
     ) throws IOException {
         User user = getUserByToken(servletRequest, jwtService, this.userRepository);
         // final Image savedImage;
@@ -75,6 +77,10 @@ public class DealerService {
         //update, save saved property
         //return "Property was successfully saved";
         this.propertyRepository.save(propertyRequest);
+        PropertyCreationResponse propertyCreationResponse = new PropertyCreationResponse();
+        propertyCreationResponse.setId(propertyRequest.getId());
+        propertyCreationResponse.setPropertyOwnerId(user.getId());
+        return propertyCreationResponse;
     }
 
     //Fetch a property by property id
@@ -113,9 +119,6 @@ public class DealerService {
         if (!property.getPrice().toString().isBlank()) {
             dbProperty.setPrice(property.getPrice());
         }
-        if (!property.getNumberOfRooms().toString().isBlank()) {
-            dbProperty.setNumberOfRooms(property.getNumberOfRooms());
-        }
         if (!property.getFeature().getBathrooms().toString().isBlank()) {
             dbProperty.getFeature().setBathrooms(property.getFeature().getBathrooms());
         }
@@ -130,12 +133,12 @@ public class DealerService {
         }
 
         //Update images
-        if (imagesRequest.length > 0) {
+        if (imagesRequest != null && imagesRequest.length > 0) {
             List<PropertyImage> propertyImages = new ArrayList<>();
             multipartFileToPropertyImageList(dbProperty, imagesRequest, propertyImages, imageService);
             dbProperty.setPropertyImages(propertyImages);
-            this.propertyRepository.save(dbProperty);
         }
+        this.propertyRepository.save(dbProperty);
         //return "Property updated successfully";
     }
 
@@ -220,6 +223,7 @@ public class DealerService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void approveApplication(Integer applicationId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found with id: " + applicationId));
@@ -228,6 +232,7 @@ public class DealerService {
         applicationRepository.save(application);
     }
 
+    @Transactional
     public void rejectApplication(Integer applicationId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found with id: " + applicationId));
@@ -247,8 +252,8 @@ public class DealerService {
     public ApplicationResponse viewApplication(Integer applicationId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found with id: " + applicationId));
-
-        application.setStatus(ApplicationStatus.READ); // Assuming you have a `status` field in `Application`
+        if (application.getStatus().equals(ApplicationStatus.UNREAD))
+            application.setStatus(ApplicationStatus.READ); // Assuming you have a `status` field in `Application`
         applicationRepository.save(application);
         return new ApplicationResponse(application);
     }

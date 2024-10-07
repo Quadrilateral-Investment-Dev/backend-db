@@ -1,23 +1,33 @@
 package com.intela.realestatebackend.requestResponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.intela.realestatebackend.models.property.Property;
-import com.intela.realestatebackend.models.property.PropertyImage;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.intela.realestatebackend.models.property.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.beans.BeanUtils;
 
+import java.sql.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PropertyResponse extends Property {
     private Integer userId;
     private Integer parentId;
     @JsonIgnore
     private List<PropertyImage> propertyImages;
+    @JsonIgnore
+    private Set<Application> applications;
+    @JsonIgnore
+    private Set<Bookmark> bookmarks;
 
     public PropertyResponse(Property property) {
         BeanUtils.copyProperties(property, this);

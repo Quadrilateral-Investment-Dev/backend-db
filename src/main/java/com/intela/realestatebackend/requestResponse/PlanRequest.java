@@ -2,9 +2,9 @@ package com.intela.realestatebackend.requestResponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.intela.realestatebackend.models.archetypes.PropertyStatus;
 import com.intela.realestatebackend.models.property.Plan;
 import com.intela.realestatebackend.models.property.PropertyImage;
-import com.intela.realestatebackend.models.property.PropertyStatus;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;

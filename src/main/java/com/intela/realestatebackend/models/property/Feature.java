@@ -7,6 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @ToString
@@ -14,14 +16,14 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @Entity(name = "features")
+@EqualsAndHashCode(exclude = "id")
 public class Feature {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(hidden = true)
     private Integer id;
-    private Integer bathrooms;
-    private Integer bedrooms;
-    private Integer lounges;
-    private Integer parking;
+    private Integer bathrooms = 0;
+    private Integer bedrooms = 0;
+    private Integer lounges = 0;
+    private Integer parking = 0;
 }
