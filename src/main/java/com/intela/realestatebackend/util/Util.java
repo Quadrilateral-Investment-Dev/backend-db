@@ -349,6 +349,8 @@ public class Util {
                 .type(image.getContentType())
                 .user(user)
                 .build();
+        if (user.getProfileImage() != null)
+            profileImage.setId(user.getProfileImage().getId());
         imageService.storeImage(profileImage);
         return profileImage;
     }
