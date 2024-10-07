@@ -252,8 +252,8 @@ public class DealerService {
     public ApplicationResponse viewApplication(Integer applicationId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found with id: " + applicationId));
-
-        application.setStatus(ApplicationStatus.READ); // Assuming you have a `status` field in `Application`
+        if (application.getStatus().equals(ApplicationStatus.UNREAD))
+            application.setStatus(ApplicationStatus.READ); // Assuming you have a `status` field in `Application`
         applicationRepository.save(application);
         return new ApplicationResponse(application);
     }

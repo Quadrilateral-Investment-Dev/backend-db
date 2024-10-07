@@ -21,12 +21,17 @@ import java.util.Set;
 @Data
 @SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
 public class ApplicationRequest extends Application {
     @JsonIgnore
-    private Set<ID> ids;
+    public Set<ID> getIds(){
+        return super.getIds();
+    }
     @JsonIgnore
-    private ApplicationStatus status;
+    public ApplicationStatus getStatus(){
+        return super.getStatus();
+    }
     @JsonIgnore
-    private Date submittedDate;
+    public Date getSubmittedDate(){
+        return super.getSubmittedDate();
+    }
 }

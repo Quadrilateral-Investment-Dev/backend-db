@@ -16,14 +16,12 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.parameters.P;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.file.Paths;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -322,7 +320,7 @@ public class CustomerDealerIntegrationTest extends BaseTestContainerTest {
                 .andExpect(status().is2xxSuccessful());
 
         // Step 6: Dealer gets the application again and confirms it's now UNREAD
-        applicationResponse = TestUtil.getApplicationByIdAsDealer(mockMvc, objectMapper, dealerAccessToken, applicationId);
+        applicationResponse = TestUtil.getApplicationByIdAsCustomer(mockMvc, objectMapper, customerAccessToken, applicationId);
         Assertions.assertEquals(ApplicationStatus.UNREAD, applicationResponse.getStatus(), "Application status should be UNREAD after marking it as unread.");
     }
 }

@@ -210,6 +210,9 @@ public class Util {
         existingInfo.setEmploymentHistories(request.getEmploymentHistories());
 
         // Update PersonalDetails if changed
+        if (existingInfo.getPersonalDetails() != null) {
+            request.getPersonalDetails().setId(existingInfo.getPersonalDetails().getId());
+        }
         existingInfo.setPersonalDetails(request.getPersonalDetails());
 
         // Update References if changed
