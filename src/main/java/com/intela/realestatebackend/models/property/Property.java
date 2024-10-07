@@ -2,6 +2,8 @@ package com.intela.realestatebackend.models.property;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.intela.realestatebackend.models.User;
 import com.intela.realestatebackend.models.archetypes.BillType;
 import com.intela.realestatebackend.models.archetypes.PaymentCycle;
@@ -107,6 +109,11 @@ public class Property {
     @CreationTimestamp
     @Column(updatable = false)
     private Date createdDate;
+
+    @JsonSetter(nulls = Nulls.SKIP)  // Skip setting to null and retain the default value if the field is absent or null
+    public void setStatus(PropertyStatus status) {
+        this.status = status;
+    }
 
     public Integer getNumberOfRooms() {
         if (feature == null) {

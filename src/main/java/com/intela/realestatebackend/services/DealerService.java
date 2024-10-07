@@ -223,6 +223,7 @@ public class DealerService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void approveApplication(Integer applicationId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found with id: " + applicationId));
@@ -231,6 +232,7 @@ public class DealerService {
         applicationRepository.save(application);
     }
 
+    @Transactional
     public void rejectApplication(Integer applicationId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found with id: " + applicationId));

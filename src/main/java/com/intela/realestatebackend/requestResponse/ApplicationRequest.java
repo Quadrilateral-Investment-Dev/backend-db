@@ -1,5 +1,6 @@
 package com.intela.realestatebackend.requestResponse;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.intela.realestatebackend.models.archetypes.ApplicationStatus;
 import com.intela.realestatebackend.models.profile.ID;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.sql.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
@@ -21,10 +23,10 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApplicationRequest extends Application {
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnore
     private Set<ID> ids;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnore
     private ApplicationStatus status;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnore
     private Date submittedDate;
 }

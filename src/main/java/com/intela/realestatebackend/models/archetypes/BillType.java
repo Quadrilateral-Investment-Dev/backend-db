@@ -4,5 +4,6 @@ public enum BillType {
     SHARED,
     SPLIT,
     INCLUDED,
+    NOT_INCLUDED,
     OTHER
 }

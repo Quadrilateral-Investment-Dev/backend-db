@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.intela.realestatebackend.BaseTestContainerTest;
 import com.intela.realestatebackend.models.archetypes.BillType;
 import com.intela.realestatebackend.models.archetypes.PaymentCycle;
+import com.intela.realestatebackend.models.archetypes.PropertyStatus;
 import com.intela.realestatebackend.models.archetypes.PropertyType;
 import com.intela.realestatebackend.models.property.Feature;
 import com.intela.realestatebackend.requestResponse.*;
@@ -122,6 +123,7 @@ public class DealerIntegrationTest extends BaseTestContainerTest {
         Assertions.assertEquals(propertyResponse.getNumberOfRooms(), propertyRequest.getNumberOfRooms());
         Assertions.assertEquals(propertyResponse.getNumberOfRooms(),
                 propertyRequest.getFeature().getBedrooms() + propertyRequest.getFeature().getLounges());
+        Assertions.assertEquals(propertyResponse.getStatus(), PropertyStatus.AVAILABLE);
         TestUtil.testLogout(mockMvc, accessToken);
     }
 

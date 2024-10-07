@@ -1,8 +1,11 @@
 package com.intela.realestatebackend.models.property;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.intela.realestatebackend.models.User;
 import com.intela.realestatebackend.models.archetypes.ApplicationStatus;
+import com.intela.realestatebackend.models.archetypes.PropertyStatus;
 import com.intela.realestatebackend.models.profile.Profile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
@@ -37,7 +40,14 @@ public class Application extends Profile {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private ApplicationStatus status;
+    private ApplicationStatus status = ApplicationStatus.UNREAD;
+
+    @JsonSetter(nulls = Nulls.SKIP)  // Skip setting to null and retain the default value if the field is absent or null
+    public void setStatus(ApplicationStatus status) {
+        this.status = status;
+    }
+
+    private String message;
 
     @CreationTimestamp
     @Column(updatable = false)

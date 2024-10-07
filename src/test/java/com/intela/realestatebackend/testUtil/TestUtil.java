@@ -6,6 +6,7 @@ import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.testUsers.TestUser;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -23,6 +25,32 @@ public class TestUtil {
     public static byte[] readFileToBytes(String filePath) throws IOException {
         Path path = Paths.get(filePath);
         return Files.readAllBytes(path);
+    }
+
+    public static ApplicationResponse getApplicationByIdAsDealer(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken, Long applicationId) throws Exception {
+        // Perform GET request to retrieve application by ID
+        MvcResult result = mockMvc.perform(get("/api/v1/dealer/applications/{applicationId}", applicationId)
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())  // Expect HTTP 200 OK response
+                .andReturn();
+
+        // Deserialize the response into ApplicationResponse class
+        String content = result.getResponse().getContentAsString();
+        return objectMapper.readValue(content, ApplicationResponse.class);
+    }
+
+    public static ApplicationResponse getApplicationByIdAsCustomer(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken, Long applicationId) throws Exception {
+        // Perform GET request to retrieve application by ID
+        MvcResult result = mockMvc.perform(get("/api/v1/customer/applications/{applicationId}", applicationId)
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())  // Expect HTTP 200 OK response
+                .andReturn();
+
+        // Deserialize the response into ApplicationResponse class
+        String content = result.getResponse().getContentAsString();
+        return objectMapper.readValue(content, ApplicationResponse.class);
     }
 
     public static void resetTestUserAccountInfo(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken, TestUser testUser) throws Exception {

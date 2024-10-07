@@ -268,7 +268,7 @@ public class DealerController {
         );
     }
 
-    @GetMapping("/applications/{propertyId}")
+    @GetMapping("/applications/property/{propertyId}")
     public ResponseEntity<List<ApplicationResponse>> listAllApplicationsByPropertyId(@PathVariable Integer propertyId) {
         return ResponseEntity.created(URI.create("")).body(
                 dealerService.listAllApplicationsByPropertyId(propertyId)
