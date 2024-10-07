@@ -111,7 +111,8 @@ public class UserService {
         User user = getUserByToken(servletRequest, jwtService, this.userRepository);
         ProfileImage profileImage = Util.multipartFileToProfileImage(user,
                 image, imageService);
-        profileImageRepository.save(profileImage);
+        user.setProfileImage(profileImage);
+        userRepository.save(user);
     }
 
     public RetrieveAccountResponse retrieveAccount(HttpServletRequest servletRequest) {
