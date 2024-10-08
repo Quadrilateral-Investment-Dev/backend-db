@@ -1,9 +1,10 @@
 package com.intela.realestatebackend.util;
 
 import com.intela.realestatebackend.exceptions.MissingAccessTokenException;
-import com.intela.realestatebackend.models.Image;
+import com.intela.realestatebackend.models.UploadedFile;
 import com.intela.realestatebackend.models.ProfileImage;
 import com.intela.realestatebackend.models.User;
+import com.intela.realestatebackend.models.archetypes.FileType;
 import com.intela.realestatebackend.models.profile.ID;
 import com.intela.realestatebackend.models.profile.Profile;
 import com.intela.realestatebackend.models.property.Application;
@@ -16,7 +17,7 @@ import com.intela.realestatebackend.repositories.PropertyRepository;
 import com.intela.realestatebackend.repositories.UserRepository;
 import com.intela.realestatebackend.repositories.application.ApplicationRepository;
 import com.intela.realestatebackend.requestResponse.*;
-import com.intela.realestatebackend.services.ImageService;
+import com.intela.realestatebackend.services.UploadedFileService;
 import com.intela.realestatebackend.services.JwtService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,12 +39,12 @@ import java.util.zip.Inflater;
 @RequiredArgsConstructor
 public class Util {
 
-    public static void toFullImage(Image image) {
+    public static void toFullImage(UploadedFile image) {
         if (image.getImage() != null)
             image.setImage(decompressImage(image.getImage()));
         else {
             try {
-                image.setImage(Util.readFileToBytes(Paths.get(image.getPath(), image.getName()).toString()));
+                image.setImage(Util.readFileToBytes(image.getPath()));
             } catch (IOException e) {
                 throw new RuntimeException("Cannot retrieve profile image" + e);
             }
@@ -132,7 +133,7 @@ public class Util {
         return getPropertyResponse(property);
     }
 
-    public static List<PropertyImageResponse> getImageByPropertyId(int propertyId, PropertyImageRepository propertyImageRepository) {
+    public static List<PropertyImageResponse> getPropertyImageByPropertyId(int propertyId, PropertyImageRepository propertyImageRepository) {
         List<PropertyImageResponse> propertyImageResponses = new ArrayList<>();
         List<PropertyImage> propertyImages = propertyImageRepository.findAllByPropertyId(propertyId);
 
@@ -259,7 +260,7 @@ public class Util {
                                              ProfileRepository profileRepository,
                                              MultipartFile[] imagesRequest,
                                              Set<ID> ids,
-                                             ImageService imageService) {
+                                             UploadedFileService imageService) {
         Arrays.asList(imagesRequest).forEach(
                 imageRequest -> {
                     try {
@@ -270,7 +271,7 @@ public class Util {
                                 .profile(profileRepository.findByProfileOwnerId(userId)
                                         .orElseThrow(() -> new RuntimeException("Profile not found for user")))
                                 .build();
-                        imageService.storeImage(id);
+                        imageService.storeFile(id, userId, FileType.PROFILE_ID);
                         ids.add(id);
                     } catch (IOException e) {
                         throw new RuntimeException("Could not save image: " + e);
@@ -283,7 +284,7 @@ public class Util {
                                              ApplicationRepository applicationRepository,
                                              MultipartFile[] imagesRequest,
                                              Set<ID> ids,
-                                             ImageService imageService) {
+                                             UploadedFileService imageService) {
         Arrays.asList(imagesRequest).forEach(
                 imageRequest -> {
                     try {
@@ -294,7 +295,7 @@ public class Util {
                                 .profile(applicationRepository.findById(applicationId)
                                         .orElseThrow(() -> new RuntimeException("Profile not found for user")))
                                 .build();
-                        imageService.storeImage(id);
+                        imageService.storeFile(id, id.getProfile().getProfileOwner().getId(), FileType.APPLICATION_ID);
                         ids.add(id);
                     } catch (IOException e) {
                         throw new RuntimeException("Could not save image: " + e);
@@ -308,7 +309,7 @@ public class Util {
             Property property,
             MultipartFile[] imagesRequest,
             List<PropertyImage> propertyImages,
-            ImageService imageService) {
+            UploadedFileService imageService) {
         Arrays.asList(imagesRequest).forEach(
                 imageRequest -> {
                     try {
@@ -318,7 +319,7 @@ public class Util {
                                 .type(imageRequest.getContentType())
                                 .property(property)
                                 .build();
-                        imageService.storeImage(propertyImage);
+                        imageService.storeFile(propertyImage, propertyImage.getProperty().getUser().getId(), FileType.PROPERTY_IMAGE);
                         propertyImages.add(propertyImage);
                     } catch (IOException e) {
                         throw new RuntimeException("Could not save image: " + e);
@@ -368,7 +369,7 @@ public class Util {
         return new ApplicationResponse(application);
     }
 
-    public static ProfileImage multipartFileToProfileImage(User user, MultipartFile image, ImageService imageService) throws IOException {
+    public static ProfileImage multipartFileToProfileImage(User user, MultipartFile image, UploadedFileService imageService) throws IOException {
         ProfileImage profileImage = ProfileImage.builder()
                 .image(compressImage(image.getBytes()))
                 .name(image.getOriginalFilename())
@@ -377,7 +378,7 @@ public class Util {
                 .build();
         if (user.getProfileImage() != null)
             profileImage.setId(user.getProfileImage().getId());
-        imageService.storeImage(profileImage);
+        imageService.storeFile(profileImage, user.getId(), FileType.PROFILE_AVATAR);
         return profileImage;
     }
 }

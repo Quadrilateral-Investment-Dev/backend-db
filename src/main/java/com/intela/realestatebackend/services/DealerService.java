@@ -38,7 +38,7 @@ public class DealerService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final ApplicationRepository applicationRepository;
-    private final ImageService imageService;
+    private final UploadedFileService imageService;
     private final IDRepository idRepository;
 
 
@@ -165,7 +165,7 @@ public class DealerService {
     }
 
     public List<PropertyImageResponse> fetchAllImagesByPropertyId(int propertyId) {
-        return getImageByPropertyId(propertyId, this.propertyImageRepository);
+        return getPropertyImageByPropertyId(propertyId, this.propertyImageRepository);
     }
 
     public void deletePropertyImageByImageId(Integer propertyId, Integer imageId) {

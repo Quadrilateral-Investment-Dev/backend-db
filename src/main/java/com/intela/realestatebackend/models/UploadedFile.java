@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class Image {
+public class UploadedFile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

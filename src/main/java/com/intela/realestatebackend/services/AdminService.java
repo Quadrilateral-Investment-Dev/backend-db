@@ -26,7 +26,7 @@ import static com.intela.realestatebackend.util.Util.convertFromIDImageToImageRe
 public class AdminService {
 
     @Autowired
-    private final ImageService imageService;
+    private final UploadedFileService imageService;
     @Autowired
     private UserRepository userRepository;
     @Autowired

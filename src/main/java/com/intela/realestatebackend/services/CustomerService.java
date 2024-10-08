@@ -44,7 +44,7 @@ public class CustomerService {
     private final ProfileRepository profileRepository;
     private final JwtService jwtService;
     private final ApplicationRepository applicationRepository;
-    private final ImageService imageService;
+    private final UploadedFileService imageService;
     @Autowired
     private ModelMapper modelMapper;
     @Autowired

@@ -1,6 +1,7 @@
 package com.intela.realestatebackend.services;
 
-import com.intela.realestatebackend.models.Image;
+import com.intela.realestatebackend.models.UploadedFile;
+import com.intela.realestatebackend.models.archetypes.FileType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -10,19 +11,20 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 @Service
-public class ImageService {
+public class UploadedFileService {
 
     @Value("${application.custom.file-storage.image-directory}")
     private String imageStorageDirectory; // Define your storage directory
 
-    public void storeImage(Image image) throws IOException {
+    public void storeFile(UploadedFile image, Integer userId, FileType fileType) throws IOException {
         System.out.println("Current working directory: " + new File(".").getAbsolutePath());
         String outputPath = imageStorageDirectory;
         byte[] imageBytes = image.getImage();
         FileOutputStream fileOutputStream = null;
         try {
+            outputPath = Paths.get(outputPath, String.valueOf(userId), fileType.toString(), image.getName()).toString();
             // Create a new File object for the output path
-            File outputFile = new File(Paths.get(outputPath, image.getName()).toString());
+            File outputFile = new File(outputPath);
 
             // Create parent directories if they don't exist
             File parentDirectory = outputFile.getParentFile();
@@ -42,6 +44,7 @@ public class ImageService {
             fileOutputStream.flush();
 
             System.out.println("Image saved successfully to: " + outputPath);
+            image.setPath(outputPath);
         } finally {
             // Ensure the stream is closed after use
             if (fileOutputStream != null) {

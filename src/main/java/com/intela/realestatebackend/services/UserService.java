@@ -37,7 +37,7 @@ public class UserService {
     @Autowired
     private JwtService jwtService;
     @Autowired
-    private ImageService imageService;
+    private UploadedFileService imageService;
     @Autowired
     private IDRepository idRepository;
 
