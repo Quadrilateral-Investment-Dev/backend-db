@@ -89,8 +89,25 @@ public class AdminController {
     }
 
     @GetMapping(value = "/user-management/profiles/ids/{userId}")
-    public ResponseEntity<List<IDImageResponse>> getIdImagesByUserId(@PathVariable Integer userId, HttpServletRequest servletRequest) {
-        return ResponseEntity.ok(this.adminService.getIdImagesByUserId(userId, servletRequest));
+    public ResponseEntity<List<IDImageResponse>> getIdsByUserId(@PathVariable Integer userId, HttpServletRequest servletRequest) {
+        return ResponseEntity.ok(this.adminService.getIdsByUserId(userId));
+    }
+
+    @GetMapping(value = "/user-management/profiles/ids/{userId}/{idId}")
+    public ResponseEntity<IDImageResponse> getIdByIdId(@PathVariable Integer userId, @PathVariable Integer idId, HttpServletRequest servletRequest) {
+        return ResponseEntity.ok(this.adminService.getIdByIdId(userId, idId));
+    }
+
+    @DeleteMapping(value = "/user-management/profiles/ids/{userId}/{idId}")
+    public ResponseEntity<String> deleteIdByIdId(@PathVariable Integer userId, @PathVariable Integer idId, HttpServletRequest servletRequest) {
+        this.adminService.deleteIdByIdId(userId, idId);
+        return ResponseEntity.ok("ID file deleted");
+    }
+
+    @PostMapping("/user-management/profiles/ids/{userId}")
+    public ResponseEntity<String> addIdsToProfile(@org.springframework.web.bind.annotation.RequestBody MultipartFile[] images, @PathVariable Integer userId) {
+        this.adminService.addIdsToProfile(images, userId);
+        return ResponseEntity.ok("Images added successfully");
     }
 
     @PostMapping("/user-management/{userId}")

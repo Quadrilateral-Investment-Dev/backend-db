@@ -108,8 +108,25 @@ public class UserController {
     }
 
     @GetMapping(value = "/profile/ids")
-    public ResponseEntity<List<IDImageResponse>> getIdImagesByUserId(HttpServletRequest servletRequest) {
-        return ResponseEntity.ok(this.userService.getIdImagesByUserId(servletRequest));
+    public ResponseEntity<List<IDImageResponse>> getIdsByUserId(HttpServletRequest servletRequest) {
+        return ResponseEntity.ok(this.userService.getIdsByUserId(servletRequest));
+    }
+
+    @GetMapping(value = "/profile/ids/{idId}")
+    public ResponseEntity<IDImageResponse> getIdByIdId(@PathVariable Integer idId, HttpServletRequest servletRequest) {
+        return ResponseEntity.ok(this.userService.getIdByIdId(idId, servletRequest));
+    }
+
+    @DeleteMapping(value = "/profile/ids/{idId}")
+    public ResponseEntity<String> deleteIdByIdId(@PathVariable Integer idId, HttpServletRequest servletRequest) {
+        this.userService.deleteIdByIdId(idId, servletRequest);
+        return ResponseEntity.ok("ID file deleted");
+    }
+
+    @PostMapping("/profile/ids")
+    public ResponseEntity<String> addIdsToProfile(@org.springframework.web.bind.annotation.RequestBody MultipartFile[] images, HttpServletRequest servletRequest) {
+        this.userService.addIdsToProfile(images, servletRequest);
+        return ResponseEntity.ok("Images added successfully");
     }
 
     @PostMapping("/")

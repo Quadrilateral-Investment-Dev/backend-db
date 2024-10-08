@@ -33,8 +33,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.intela.realestatebackend.util.Util.getUserByToken;
-import static com.intela.realestatebackend.util.Util.mapApplicationToApplicationResponse;
+import static com.intela.realestatebackend.util.Util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -143,7 +142,7 @@ public class CustomerService {
         User user = getUserByToken(servletRequest, jwtService, this.userRepository);
 
         // Fetch all CustomerInformation entities for the user where propertyId is not null
-        List<Application> applications = this.applicationRepository.findByUser(user);
+        List<Application> applications = this.applicationRepository.findAllByUser(user);
 
         // Filter out entries where property is null
         List<ApplicationResponse> applicationResponses = applications.stream()
@@ -190,10 +189,34 @@ public class CustomerService {
         this.applicationRepository.delete(application);
     }
 
-    public List<IDImageResponse> getIdImagesByApplicationId(Integer applicationId, HttpServletRequest servletRequest) {
+    public List<IDImageResponse> getIdsByApplicationId(Integer applicationId, HttpServletRequest servletRequest) {
         List<ID> idImageResponses = idRepository.findAllByProfileId(applicationId);
         return idImageResponses.stream()
                 .map(Util::convertFromIDImageToImageResponse) // Assuming ImageResponse has a constructor that takes a PropertyImage
                 .collect(Collectors.toList());
+    }
+
+    public IDImageResponse getIdByIdId(Integer applicationId, Integer idId, HttpServletRequest servletRequest) {
+        ID id = idRepository.findById(idId).orElseThrow(() -> new RuntimeException("ID not found"));
+        return convertFromIDImageToImageResponse(id);
+    }
+
+    public void deleteIdByIdId(Integer applicationId, Integer idId, HttpServletRequest servletRequest) {
+        idRepository.deleteById(idId);
+    }
+
+    public void addIdsToApplication(MultipartFile[] images, Integer applicationId) {
+        Set<ID> ids = new HashSet<>();
+        Application application = this.applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new EntityNotFoundException("Property not found"));
+        multipartFileToIDList(applicationId, applicationRepository, images, ids, imageService);
+
+        //set images property id to saved property
+        try {
+            ids.forEach(id -> id.setProfile(application));
+            this.idRepository.saveAll(ids);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not save image: " + e);
+        }
     }
 }

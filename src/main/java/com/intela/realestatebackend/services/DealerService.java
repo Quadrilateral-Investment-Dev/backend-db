@@ -2,6 +2,7 @@ package com.intela.realestatebackend.services;
 
 import com.intela.realestatebackend.models.User;
 import com.intela.realestatebackend.models.archetypes.ApplicationStatus;
+import com.intela.realestatebackend.models.profile.ID;
 import com.intela.realestatebackend.models.property.Application;
 import com.intela.realestatebackend.models.property.Plan;
 import com.intela.realestatebackend.models.property.Property;
@@ -10,7 +11,9 @@ import com.intela.realestatebackend.repositories.PropertyImageRepository;
 import com.intela.realestatebackend.repositories.PropertyRepository;
 import com.intela.realestatebackend.repositories.UserRepository;
 import com.intela.realestatebackend.repositories.application.ApplicationRepository;
+import com.intela.realestatebackend.repositories.application.IDRepository;
 import com.intela.realestatebackend.requestResponse.*;
+import com.intela.realestatebackend.util.Util;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -22,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.intela.realestatebackend.util.Util.*;
@@ -35,6 +39,7 @@ public class DealerService {
     private final JwtService jwtService;
     private final ApplicationRepository applicationRepository;
     private final ImageService imageService;
+    private final IDRepository idRepository;
 
 
     //Fetch all properties by user id
@@ -163,7 +168,7 @@ public class DealerService {
         return getImageByPropertyId(propertyId, this.propertyImageRepository);
     }
 
-    public void deleteImageById(Integer imageId) {
+    public void deletePropertyImageByImageId(Integer propertyId, Integer imageId) {
         this.propertyImageRepository.findById(imageId)
                 .orElseThrow(() -> new EntityNotFoundException("Could not find images"));
         this.propertyImageRepository.deleteById(imageId);
@@ -218,7 +223,7 @@ public class DealerService {
     }
 
     public List<ApplicationResponse> listAllApplicationsByPropertyId(Integer propertyId) {
-        return applicationRepository.findByPropertyId(propertyId).stream()
+        return applicationRepository.findAllByPropertyId(propertyId).stream()
                 .map(this::mapToApplicationResponse)
                 .collect(Collectors.toList());
     }
@@ -256,5 +261,18 @@ public class DealerService {
             application.setStatus(ApplicationStatus.READ); // Assuming you have a `status` field in `Application`
         applicationRepository.save(application);
         return new ApplicationResponse(application);
+    }
+
+    public List<IDImageResponse> viewApplicationIds(Integer applicationId) {
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new IllegalArgumentException("Application not found with id: " + applicationId));
+        Set<ID> idImageResponses = application.getIds();
+        return idImageResponses.stream()
+                .map(Util::convertFromIDImageToImageResponse) // Assuming ImageResponse has a constructor that takes a PropertyImage
+                .collect(Collectors.toList());
+    }
+
+    public PropertyImageResponse getPropertyImageByImageId(Integer propertyId, Integer imageId) {
+        PropertyImage propertyImage = propertyImageRepository.findById(imageId).orElseThrow(() -> new IllegalArgumentException("Application not found with id: " + imageId));
+        return convertFromPropertyImageToImageResponse(propertyImage);
     }
 }

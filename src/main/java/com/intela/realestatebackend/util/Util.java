@@ -14,6 +14,7 @@ import com.intela.realestatebackend.repositories.ProfileRepository;
 import com.intela.realestatebackend.repositories.PropertyImageRepository;
 import com.intela.realestatebackend.repositories.PropertyRepository;
 import com.intela.realestatebackend.repositories.UserRepository;
+import com.intela.realestatebackend.repositories.application.ApplicationRepository;
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.services.ImageService;
 import com.intela.realestatebackend.services.JwtService;
@@ -277,6 +278,31 @@ public class Util {
                 }
         );
     }
+
+    public static void multipartFileToIDList(Integer applicationId,
+                                             ApplicationRepository applicationRepository,
+                                             MultipartFile[] imagesRequest,
+                                             Set<ID> ids,
+                                             ImageService imageService) {
+        Arrays.asList(imagesRequest).forEach(
+                imageRequest -> {
+                    try {
+                        ID id = ID.builder()
+                                .image(compressImage(imageRequest.getBytes()))
+                                .name(imageRequest.getOriginalFilename())
+                                .type(imageRequest.getContentType())
+                                .profile(applicationRepository.findById(applicationId)
+                                        .orElseThrow(() -> new RuntimeException("Profile not found for user")))
+                                .build();
+                        imageService.storeImage(id);
+                        ids.add(id);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Could not save image: " + e);
+                    }
+                }
+        );
+    }
+
 
     public static void multipartFileToPropertyImageList(
             Property property,

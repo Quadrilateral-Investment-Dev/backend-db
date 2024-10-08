@@ -175,8 +175,8 @@ public class DealerController {
         return ResponseEntity.ok("Property updated successfully");
     }
 
-    @PostMapping("/property/{propertyId}")
-    public ResponseEntity<String> addImageToProperty(@RequestBody MultipartFile[] images, @PathVariable Integer propertyId) {
+    @PostMapping("/property/images/{propertyId}")
+    public ResponseEntity<String> addImagesToProperty(@RequestBody MultipartFile[] images, @PathVariable Integer propertyId) {
         for (MultipartFile multipartFile : images) {
             if (!Util.isImage(multipartFile)) {
                 return ResponseEntity.status(415).body(null);
@@ -189,10 +189,15 @@ public class DealerController {
         return ResponseEntity.ok("Images added successfully");
     }
 
-    @DeleteMapping("/property/image/{imageId}")
-    public ResponseEntity<String> deleteImageById(@PathVariable Integer imageId) {
-        this.dealerService.deleteImageById(imageId);
+    @DeleteMapping("/property/images/{propertyId}/{imageId}")
+    public ResponseEntity<String> deletePropertyImageByImageId(@PathVariable Integer propertyId, @PathVariable Integer imageId) {
+        this.dealerService.deletePropertyImageByImageId(propertyId, imageId);
         return ResponseEntity.accepted().body("Image deleted successfully");
+    }
+
+    @GetMapping("/property/images/{propertyId}/{imageId}")
+    public ResponseEntity<PropertyImageResponse> getPropertyImageByImageId(@PathVariable Integer propertyId, @PathVariable Integer imageId) {
+        return ResponseEntity.ok(this.dealerService.getPropertyImageByImageId(propertyId, imageId));
     }
 
     @Operation(
@@ -277,8 +282,15 @@ public class DealerController {
 
     @GetMapping("/applications/{applicationId}")
     public ResponseEntity<ApplicationResponse> viewApplication(@PathVariable Integer applicationId) {
-        return ResponseEntity.created(URI.create("")).body(
+        return ResponseEntity.ok(
                 dealerService.viewApplication(applicationId)
+        );
+    }
+
+    @GetMapping("/applications/ids/{applicationId}")
+    public ResponseEntity<List<IDImageResponse>> viewApplicationIds(@PathVariable Integer applicationId) {
+        return ResponseEntity.ok(
+                dealerService.viewApplicationIds(applicationId)
         );
     }
 

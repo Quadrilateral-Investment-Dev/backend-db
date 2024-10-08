@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.beans.BeanUtils;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
@@ -21,12 +20,15 @@ import java.util.Set;
 public class ApplicationResponse extends Application {
     private Integer userId;
     private Integer propertyId;
-    @JsonIgnore
-    private Set<ID> ids = new HashSet<>();
 
     public ApplicationResponse(Application application) {
         BeanUtils.copyProperties(application, this);
         init();
+    }
+
+    @JsonIgnore
+    public Set<ID> getIds() {
+        return super.getIds();
     }
 
     private void init() {

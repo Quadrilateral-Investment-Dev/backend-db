@@ -298,7 +298,8 @@ public class CustomerDealerIntegrationTest extends BaseTestContainerTest {
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
 
-        List<ApplicationResponse> applicationsList = objectMapper.readValue(applicationsListResult.getResponse().getContentAsString(), new TypeReference<List<ApplicationResponse>>() {});
+        List<ApplicationResponse> applicationsList = objectMapper.readValue(applicationsListResult.getResponse().getContentAsString(), new TypeReference<List<ApplicationResponse>>() {
+        });
         Assertions.assertFalse(applicationsList.isEmpty(), "Applications list should not be empty for the property.");
 
         ApplicationResponse submittedApplication = applicationsList.stream()

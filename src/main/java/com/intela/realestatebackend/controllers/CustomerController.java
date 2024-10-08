@@ -91,9 +91,26 @@ public class CustomerController {
         return ResponseEntity.ok().body(this.customerService.createApplication(propertyId, servletRequest, request, images));
     }
 
-    @GetMapping(value = "/applications/images/{applicationId}")
-    public ResponseEntity<List<IDImageResponse>> getIdImagesByApplicationId(@PathVariable Integer applicationId, HttpServletRequest servletRequest) {
-        return ResponseEntity.ok(this.customerService.getIdImagesByApplicationId(applicationId, servletRequest));
+    @GetMapping(value = "/applications/ids/{applicationId}")
+    public ResponseEntity<List<IDImageResponse>> getIdsByApplicationId(@PathVariable Integer applicationId, HttpServletRequest servletRequest) {
+        return ResponseEntity.ok(this.customerService.getIdsByApplicationId(applicationId, servletRequest));
+    }
+
+    @GetMapping(value = "/applications/ids/{applicationId}/{idId}")
+    public ResponseEntity<IDImageResponse> getIdByIdId(@PathVariable Integer applicationId, @PathVariable Integer idId, HttpServletRequest servletRequest) {
+        return ResponseEntity.ok(this.customerService.getIdByIdId(applicationId, idId, servletRequest));
+    }
+
+    @PostMapping("/applications/ids/{applicationId}")
+    public ResponseEntity<String> addIdsToApplication(@org.springframework.web.bind.annotation.RequestBody MultipartFile[] images, @PathVariable Integer applicationId) {
+        this.customerService.addIdsToApplication(images, applicationId);
+        return ResponseEntity.ok("Images added successfully");
+    }
+
+    @DeleteMapping(value = "/applications/ids/{applicationId}/{idId}")
+    public ResponseEntity<String> deleteIdByIdId(@PathVariable Integer applicationId, @PathVariable Integer idId, HttpServletRequest servletRequest) {
+        this.customerService.deleteIdByIdId(applicationId, idId, servletRequest);
+        return ResponseEntity.ok("ID file deleted");
     }
 
     @GetMapping("/applications")
