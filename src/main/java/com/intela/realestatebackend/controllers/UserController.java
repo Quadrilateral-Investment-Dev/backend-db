@@ -124,7 +124,7 @@ public class UserController {
     }
 
     @PostMapping("/profile/ids")
-    public ResponseEntity<String> addIdsToProfile(@org.springframework.web.bind.annotation.RequestBody MultipartFile[] images, HttpServletRequest servletRequest) {
+    public ResponseEntity<String> addIdsToProfile(@RequestPart MultipartFile[] images, HttpServletRequest servletRequest) {
         this.userService.addIdsToProfile(images, servletRequest);
         return ResponseEntity.ok("Images added successfully");
     }

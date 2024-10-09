@@ -162,6 +162,11 @@ public class Util {
         throw new IllegalArgumentException("The given field object is not a field of the parent object.");
     }
 
+    public static boolean doesFileExist(String filePath) {
+        Path path = Paths.get(filePath);
+        return Files.exists(path);
+    }
+
     public static PropertyImageResponse convertFromPropertyImageToImageResponse(PropertyImage propertyImage) {
         if (propertyImage == null || propertyImage.getImage() == null) {
             return null;
@@ -290,7 +295,7 @@ public class Util {
                     try {
                         ID id = ID.builder()
                                 .image(compressImage(imageRequest.getBytes()))
-                                .name(imageRequest.getOriginalFilename())
+                                .name(imageRequest.getOriginalFilename() + "-" + applicationId)
                                 .type(imageRequest.getContentType())
                                 .profile(applicationRepository.findById(applicationId)
                                         .orElseThrow(() -> new RuntimeException("Profile not found for user")))

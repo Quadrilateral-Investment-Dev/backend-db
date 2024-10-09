@@ -105,7 +105,7 @@ public class AdminController {
     }
 
     @PostMapping("/user-management/profiles/ids/{userId}")
-    public ResponseEntity<String> addIdsToProfile(@org.springframework.web.bind.annotation.RequestBody MultipartFile[] images, @PathVariable Integer userId) {
+    public ResponseEntity<String> addIdsToProfile(@RequestPart MultipartFile[] images, @PathVariable Integer userId) {
         this.adminService.addIdsToProfile(images, userId);
         return ResponseEntity.ok("Images added successfully");
     }

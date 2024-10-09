@@ -2,12 +2,14 @@ package com.intela.realestatebackend.services;
 
 import com.intela.realestatebackend.models.UploadedFile;
 import com.intela.realestatebackend.models.archetypes.FileType;
+import com.intela.realestatebackend.util.Util;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Paths;
 
 @Service
@@ -23,6 +25,8 @@ public class UploadedFileService {
         FileOutputStream fileOutputStream = null;
         try {
             outputPath = Paths.get(outputPath, String.valueOf(userId), fileType.toString(), image.getName()).toString();
+            if (Util.doesFileExist(outputPath))
+                throw new FileAlreadyExistsException("File already exists at path: " + outputPath);
             // Create a new File object for the output path
             File outputFile = new File(outputPath);
 

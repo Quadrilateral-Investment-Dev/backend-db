@@ -102,7 +102,7 @@ public class CustomerController {
     }
 
     @PostMapping("/applications/ids/{applicationId}")
-    public ResponseEntity<String> addIdsToApplication(@org.springframework.web.bind.annotation.RequestBody MultipartFile[] images, @PathVariable Integer applicationId) {
+    public ResponseEntity<String> addIdsToApplication(@RequestPart MultipartFile[] images, @PathVariable Integer applicationId) {
         this.customerService.addIdsToApplication(images, applicationId);
         return ResponseEntity.ok("Images added successfully");
     }

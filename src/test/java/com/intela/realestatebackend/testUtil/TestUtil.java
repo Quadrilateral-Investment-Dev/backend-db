@@ -1,9 +1,11 @@
 package com.intela.realestatebackend.testUtil;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intela.realestatebackend.models.archetypes.Role;
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.testUsers.TestUser;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,6 +28,68 @@ public class TestUtil {
     public static byte[] readFileToBytes(String filePath) throws IOException {
         Path path = Paths.get(filePath);
         return Files.readAllBytes(path);
+    }
+
+    public static List<IDImageResponse> getUploadedProfileIds(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken) throws Exception {
+        MvcResult result = mockMvc.perform(get("/api/v1/user/profile/ids")
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+        return objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {});
+    }
+
+    public static IDImageResponse getUploadedProfileId(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken, String fileName) throws Exception {
+        List<IDImageResponse> uploadedFiles = getUploadedProfileIds(mockMvc, objectMapper, accessToken);
+
+        return uploadedFiles.stream()
+                .filter(file -> fileName.equals(file.getName()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("File not found: " + fileName));
+    }
+
+    public static void clearAllProfileIdFiles(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken) throws Exception {
+        // Step 1: Retrieve all uploaded profile ID files
+        List<IDImageResponse> uploadedFiles = getUploadedProfileIds(mockMvc, objectMapper, accessToken);
+
+        // Step 2: Loop through each file and delete it one by one
+        for (IDImageResponse file : uploadedFiles) {
+            mockMvc.perform(delete("/api/v1/user/profile/ids/{idId}", file.getId())
+                            .header("Authorization", "Bearer " + accessToken))
+                    .andExpect(status().isOk());
+        }
+    }
+
+    public static void verifyUploadedProfileId(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken, String fileName, byte[] originalBytes) throws Exception {
+        // Step 1: Retrieve the list of images
+        MvcResult result = mockMvc.perform(get("/api/v1/user/profile/ids")
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Assuming the response is a list of file metadata (could be URLs or file details)
+        String responseContent = result.getResponse().getContentAsString();
+        List<IDImageResponse> fileResponses = objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {});
+
+        // Step 2: Find the image with the given file name
+        IDImageResponse targetFile = fileResponses.stream()
+                .filter(file -> fileName.equals(file.getName()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("File not found: " + fileName));
+
+        // Step 3: Retrieve the actual file bytes
+        MvcResult fileResult = mockMvc.perform(get("/api/v1/user/profile/ids/{idId}", targetFile.getId())
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        byte[] retrievedBytes = fileResult.getResponse().getContentAsByteArray();
+
+        // Step 4: Compare the retrieved bytes with the original file bytes
+        Assertions.assertArrayEquals(originalBytes, retrievedBytes, "The uploaded and retrieved file contents should match");
+        Assertions.assertArrayEquals(originalBytes, targetFile.getImage(), "The retrieved file contents from retrieve all and retrieve by id should match");
+
     }
 
     public static ApplicationResponse getApplicationByIdAsDealer(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken, Long applicationId) throws Exception {
