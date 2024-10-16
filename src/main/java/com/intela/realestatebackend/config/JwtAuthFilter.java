@@ -81,7 +81,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     User user = Util.getUserByToken(token.getToken(), jwtService, userRepository);
                     if (!user.isAccountNonLocked()) {
                         this.authService.revokeAllUserTokens(user);
-                        throw new AccessDeniedException("User is banned until " + user.getBannedTill());
+                        throw new AccessDeniedException("User " + user.getEmail() + " is banned until " + user.getBannedTill());
                     }
                 }
             } catch (AccessDeniedException e) {

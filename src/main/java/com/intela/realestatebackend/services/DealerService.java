@@ -68,6 +68,7 @@ public class DealerService {
         //Create and save property
         propertyRequest.setUser(user);
         //set images property id to saved property
+        this.propertyRepository.save(propertyRequest);
 
         try {
             multipartFileToPropertyImageList(propertyRequest,
@@ -81,7 +82,6 @@ public class DealerService {
 
         //update, save saved property
         //return "Property was successfully saved";
-        this.propertyRepository.save(propertyRequest);
         PropertyCreationResponse propertyCreationResponse = new PropertyCreationResponse();
         propertyCreationResponse.setId(propertyRequest.getId());
         propertyCreationResponse.setPropertyOwnerId(user.getId());
@@ -183,6 +183,8 @@ public class DealerService {
                 .orElseThrow(() -> new IllegalArgumentException("Property not found with id: " + propertyId));
         planRequest.setParentListing(parentListing);
         planRequest.setUser(parentListing.getUser());
+        // Persist the Plan object
+        propertyRepository.save(planRequest);
         try {
             multipartFileToPropertyImageList(planRequest,
                     images,
@@ -191,8 +193,6 @@ public class DealerService {
             throw new RuntimeException("Could not save image: " + e);
         }
         planRequest.setPropertyImages(propertyImages);
-        // Step 5: Persist the Plan object
-        propertyRepository.save(planRequest);
     }
 
     public List<PropertyResponse> listPlansOfProperty(Integer propertyId) {

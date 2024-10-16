@@ -15,9 +15,12 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static com.intela.realestatebackend.testUtil.TestUtil.IMAGES_PATH;
+import static com.intela.realestatebackend.testUtil.TestUtil.cleanDirectory;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -31,6 +34,12 @@ public class FileUploadIntegrationTest extends BaseTestContainerTest {
     private static List<TestUser> dealerUsers;
     @Autowired
     private List<TestUser> allUsers;
+
+    @AfterAll
+    public static void cleanUp() throws IOException {
+        // Delete all files in the ./resources/images directory
+        cleanDirectory(IMAGES_PATH);
+    }
 
     @Test
     @Order(0)

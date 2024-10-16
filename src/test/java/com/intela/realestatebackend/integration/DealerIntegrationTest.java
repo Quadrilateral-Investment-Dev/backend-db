@@ -18,9 +18,12 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static com.intela.realestatebackend.testUtil.TestUtil.IMAGES_PATH;
+import static com.intela.realestatebackend.testUtil.TestUtil.cleanDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,6 +34,12 @@ public class DealerIntegrationTest extends BaseTestContainerTest {
     private static List<TestUser> dealerUsers;
     @Autowired
     private List<TestUser> allUsers;
+
+    @AfterAll
+    public static void cleanUp() throws IOException {
+        // Delete all files in the ./resources/images directory
+        cleanDirectory(IMAGES_PATH);
+    }
 
     @Test
     @Order(1)

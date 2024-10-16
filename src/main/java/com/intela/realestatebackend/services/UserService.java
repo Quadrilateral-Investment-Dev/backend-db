@@ -1,6 +1,7 @@
 package com.intela.realestatebackend.services;
 
 import com.intela.realestatebackend.models.ProfileImage;
+import com.intela.realestatebackend.models.UploadedFile;
 import com.intela.realestatebackend.models.User;
 import com.intela.realestatebackend.models.profile.ID;
 import com.intela.realestatebackend.models.profile.Profile;
@@ -138,6 +139,18 @@ public class UserService {
     }
 
     public void deleteIdByIdId(Integer idId, HttpServletRequest servletRequest) {
+        // Step 1: Retrieve the ID file from the database
+        ID idFile = idRepository.findById(idId)
+                .orElseThrow(() -> new RuntimeException("ID file not found with id: " + idId));
+
+        // Step 2: Remove the file from the filesystem
+        try {
+            imageService.removeFile(idFile.getPath()); // Adjust the parameters as necessary
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to remove file: " + e.getMessage());
+        }
+
+        // Step 3: Delete the ID record from the database
         idRepository.deleteById(idId);
     }
 

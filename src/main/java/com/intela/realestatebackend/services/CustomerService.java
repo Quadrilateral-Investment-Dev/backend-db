@@ -113,7 +113,9 @@ public class CustomerService {
         // Retrieve the user by token from the request
         User user = getUserByToken(servletRequest, jwtService, this.userRepository);
         Set<ID> ids = new HashSet<>();
-        Util.multipartFileToIDList(user.getId(), profileRepository, images, ids, imageService);
+        if (request.getId() != null) {
+            request.setId(null);
+        }
         // Find the property by its ID
         Property property = this.propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new EntityNotFoundException("Property not found"));
@@ -123,12 +125,11 @@ public class CustomerService {
         request.setSubmittedDate(new Date(System.currentTimeMillis()));
         request.setUser(user);
         request.setProperty(property);
-        request.setIds(ids);
-        if (request.getId() != null) {
-            request.setId(null);
-        }
         // Save the CustomerInformation entity
         this.applicationRepository.save(request);
+        Util.multipartFileToIDList(request.getId(), applicationRepository, images, ids, imageService);
+        request.setIds(ids);
+
         ApplicationCreationResponse applicationCreationResponse = new ApplicationCreationResponse();
         applicationCreationResponse.setId(request.getId());
         applicationCreationResponse.setPropertyId(request.getProperty().getId());
@@ -209,7 +210,7 @@ public class CustomerService {
         Set<ID> ids = new HashSet<>();
         Application application = this.applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new EntityNotFoundException("Property not found"));
-        multipartFileToIDList(applicationId, applicationRepository, images, ids, imageService);
+        multipartFileToIDList(Long.valueOf(applicationId), applicationRepository, images, ids, imageService);
 
         //set images property id to saved property
         try {

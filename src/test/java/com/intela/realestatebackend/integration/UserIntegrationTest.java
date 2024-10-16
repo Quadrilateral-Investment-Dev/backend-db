@@ -6,19 +6,19 @@ import com.intela.realestatebackend.models.profile.ContactDetails;
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.testUsers.TestUser;
 import com.intela.realestatebackend.testUtil.TestUtil;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static com.intela.realestatebackend.testUtil.TestUtil.IMAGES_PATH;
+import static com.intela.realestatebackend.testUtil.TestUtil.cleanDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -31,6 +31,12 @@ public class UserIntegrationTest extends BaseTestContainerTest {
     private static List<TestUser> testUserList;
     @Autowired
     private List<TestUser> allUsers;
+
+    @AfterAll
+    public static void cleanUp() throws IOException {
+        // Delete all files in the ./resources/images directory
+        cleanDirectory(IMAGES_PATH);
+    }
 
     @Test
     @Order(1)
@@ -46,6 +52,9 @@ public class UserIntegrationTest extends BaseTestContainerTest {
         byte[] image2Bytes = TestUtil.readFileToBytes(Paths.get(TestUtil.TEST_IMAGE_PATH, "image2.jpg").toString());
 
         String accessToken = authenticationResponse.getAccessToken();
+
+        // Reset user's profile IDs
+        TestUtil.testDeleteProfileIDs(mockMvc, objectMapper, accessToken);
         String s = mockMvc.perform(get("/api/v1/user/profile")
                         .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
@@ -113,6 +122,8 @@ public class UserIntegrationTest extends BaseTestContainerTest {
                 "image/jpeg",            // Content type
                 image2Bytes // File content
         );
+        // Reset user's profile IDs
+        TestUtil.testDeleteProfileIDs(mockMvc, objectMapper, accessToken);
         mockMvc.perform(multipart("/api/v1/user/profile")
                         .file(image1)
                         .file(image2)

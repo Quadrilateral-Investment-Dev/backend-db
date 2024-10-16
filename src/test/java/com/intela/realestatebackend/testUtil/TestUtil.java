@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class TestUtil {
     public static final String TEST_IMAGE_PATH = "/usr/src/files/images";
+    public static final String IMAGES_PATH = "./resources/images";
 
     public static byte[] readFileToBytes(String filePath) throws IOException {
         Path path = Paths.get(filePath);
@@ -243,4 +245,80 @@ public class TestUtil {
 
         testLogout(mockMvc, accessToken);
     }
+
+    public static void testDeleteUserProfileIDsAsAdmin(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken, Integer userId) throws Exception {
+        // Step 1: Retrieve all ID files for the specified user
+        MvcResult result = mockMvc.perform(get("/api/v1/admin/user-management/profiles/ids/{userId}", userId)
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Parse the response to get the list of ID files
+        String responseContent = result.getResponse().getContentAsString();
+        List<IDImageResponse> idFiles = objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {});
+
+        // Step 2: Loop through each ID file and delete it
+        for (IDImageResponse idFile : idFiles) {
+            mockMvc.perform(delete("/api/v1/admin/user-management/profiles/ids/{userId}/{idId}", userId, idFile.getId())
+                            .header("Authorization", "Bearer " + accessToken))
+                    .andExpect(status().isOk());
+        }
+
+        // Step 3: Verify that all ID files have been deleted
+        MvcResult verificationResult = mockMvc.perform(get("/api/v1/admin/user-management/profiles/ids/{userId}", userId)
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Parse the response again to ensure no ID files are returned
+        String verificationResponseContent = verificationResult.getResponse().getContentAsString();
+        List<IDImageResponse> remainingIdFiles = objectMapper.readValue(verificationResponseContent, new TypeReference<List<IDImageResponse>>() {});
+
+        // Assert that the list is empty
+        Assertions.assertTrue(remainingIdFiles.isEmpty(), "All ID files should have been deleted");
+    }
+
+    // Method to clean up the directory
+    public static void cleanDirectory(String pathStr) throws IOException {
+        Path directoryPath = Paths.get(pathStr);
+        if (Files.exists(directoryPath)) {
+            Files.walk(directoryPath)  // Traverse the directory
+                    .map(Path::toFile)      // Convert Path to File
+                    .filter(File::isFile)   // Only delete files, not directories
+                    .forEach(File::delete); // Delete each file
+        }
+    }
+
+    public static void testDeleteProfileIDs(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken) throws Exception {
+        // Step 1: Retrieve all profile ID files for the user
+        MvcResult result = mockMvc.perform(get("/api/v1/user/profile/ids")
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Parse the response to get the list of ID files
+        String responseContent = result.getResponse().getContentAsString();
+        List<IDImageResponse> idFiles = objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {});
+
+        // Step 2: Loop through each ID file and delete it
+        for (IDImageResponse idFile : idFiles) {
+            mockMvc.perform(delete("/api/v1/user/profile/ids/{idId}", idFile.getId())
+                            .header("Authorization", "Bearer " + accessToken))
+                    .andExpect(status().isOk());
+        }
+
+        // Step 3: Verify that all ID files have been deleted
+        MvcResult verificationResult = mockMvc.perform(get("/api/v1/user/profile/ids")
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Parse the response again to ensure no ID files are returned
+        String verificationResponseContent = verificationResult.getResponse().getContentAsString();
+        List<IDImageResponse> remainingIdFiles = objectMapper.readValue(verificationResponseContent, new TypeReference<List<IDImageResponse>>() {});
+
+        // Assert that the list is empty
+        Assertions.assertTrue(remainingIdFiles.isEmpty(), "All ID files should have been deleted");
+    }
+
 }

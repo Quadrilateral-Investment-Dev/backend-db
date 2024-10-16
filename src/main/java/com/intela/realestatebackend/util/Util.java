@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -276,7 +277,7 @@ public class Util {
                                 .profile(profileRepository.findByProfileOwnerId(userId)
                                         .orElseThrow(() -> new RuntimeException("Profile not found for user")))
                                 .build();
-                        imageService.storeFile(id, userId, FileType.PROFILE_ID);
+                        imageService.storeFile(id, userId, "", FileType.PROFILE_ID);
                         ids.add(id);
                     } catch (IOException e) {
                         throw new RuntimeException("Could not save image: " + e);
@@ -285,7 +286,7 @@ public class Util {
         );
     }
 
-    public static void multipartFileToIDList(Integer applicationId,
+    public static void multipartFileToIDList(Long applicationId,
                                              ApplicationRepository applicationRepository,
                                              MultipartFile[] imagesRequest,
                                              Set<ID> ids,
@@ -295,12 +296,12 @@ public class Util {
                     try {
                         ID id = ID.builder()
                                 .image(compressImage(imageRequest.getBytes()))
-                                .name(imageRequest.getOriginalFilename() + "-" + applicationId)
+                                .name(imageRequest.getOriginalFilename())
                                 .type(imageRequest.getContentType())
-                                .profile(applicationRepository.findById(applicationId)
+                                .profile(applicationRepository.findById(Math.toIntExact(applicationId))
                                         .orElseThrow(() -> new RuntimeException("Profile not found for user")))
                                 .build();
-                        imageService.storeFile(id, id.getProfile().getProfileOwner().getId(), FileType.APPLICATION_ID);
+                        imageService.storeFile(id, ((Application)id.getProfile()).getUser().getId(), String.valueOf(applicationId), FileType.APPLICATION_ID);
                         ids.add(id);
                     } catch (IOException e) {
                         throw new RuntimeException("Could not save image: " + e);
@@ -324,7 +325,7 @@ public class Util {
                                 .type(imageRequest.getContentType())
                                 .property(property)
                                 .build();
-                        imageService.storeFile(propertyImage, propertyImage.getProperty().getUser().getId(), FileType.PROPERTY_IMAGE);
+                        imageService.storeFile(propertyImage, propertyImage.getProperty().getUser().getId(), String.valueOf(property.getId()), FileType.PROPERTY_IMAGE);
                         propertyImages.add(propertyImage);
                     } catch (IOException e) {
                         throw new RuntimeException("Could not save image: " + e);
@@ -383,7 +384,12 @@ public class Util {
                 .build();
         if (user.getProfileImage() != null)
             profileImage.setId(user.getProfileImage().getId());
-        imageService.storeFile(profileImage, user.getId(), FileType.PROFILE_AVATAR);
+        try {
+            imageService.storeFile(profileImage, user.getId(), "", FileType.PROFILE_AVATAR);
+        } catch (FileAlreadyExistsException e) {
+            imageService.removeFile(profileImage, user.getId(), "", FileType.PROFILE_AVATAR);
+            imageService.storeFile(profileImage, user.getId(), "", FileType.PROFILE_AVATAR);
+        }
         return profileImage;
     }
 }
