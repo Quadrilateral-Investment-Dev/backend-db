@@ -92,6 +92,33 @@ public class TestUtil {
 
     }
 
+    public static void verifyUploadedApplicationId(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken, Integer propertyId, String fileName, byte[] originalBytes) throws Exception {
+        List<IDImageResponse> uploadedFiles = getUploadedApplicationIds(mockMvc, objectMapper, accessToken, propertyId);
+        IDImageResponse targetFile = uploadedFiles.stream()
+                .filter(file -> fileName.equals(file.getName()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("File not found: " + fileName));
+
+        MvcResult fileResult = mockMvc.perform(get("/api/v1/applications/{propertyId}/ids/{idId}", propertyId, targetFile.getId())
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        byte[] retrievedBytes = fileResult.getResponse().getContentAsByteArray();
+        Assertions.assertArrayEquals(originalBytes, retrievedBytes, "The uploaded and retrieved file contents should match");
+    }
+
+    public static List<IDImageResponse> getUploadedApplicationIds(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken, Integer propertyId) throws Exception {
+        MvcResult result = mockMvc.perform(get("/api/v1/applications/{propertyId}/ids", propertyId)
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+        return objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {});
+    }
+
+
     public static ApplicationResponse getApplicationByIdAsDealer(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken, Long applicationId) throws Exception {
         // Perform GET request to retrieve application by ID
         MvcResult result = mockMvc.perform(get("/api/v1/dealer/applications/{applicationId}", applicationId)
