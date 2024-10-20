@@ -1,6 +1,8 @@
 package com.intela.realestatebackend.requestResponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.intela.realestatebackend.models.archetypes.ApplicationStatus;
 import com.intela.realestatebackend.models.profile.ID;
 import com.intela.realestatebackend.models.property.Application;
@@ -18,7 +20,10 @@ import java.util.Set;
 @Data
 @SuperBuilder
 @NoArgsConstructor
+@JsonIgnoreProperties(value = {"ids"}, allowGetters = true)
 public class ApplicationRequest extends Application {
+
+    @Override
     @JsonIgnore
     public Set<ID> getIds() {
         return super.getIds();

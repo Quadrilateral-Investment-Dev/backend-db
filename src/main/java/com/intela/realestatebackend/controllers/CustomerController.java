@@ -85,9 +85,10 @@ public class CustomerController {
                     )
             )
     )
-    @PostMapping(value = "/applications/create/{propertyId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/applications/create/{propertyId}")
     public ResponseEntity<ApplicationCreationResponse> createApplication(@PathVariable Integer propertyId, HttpServletRequest servletRequest,
-                                                                         @RequestPart("request") ApplicationRequest request, @RequestPart(name = "images", required = false) MultipartFile[] images) {
+                                                                         @RequestPart(value = "images", required = false) MultipartFile[] images,
+                                                                         @RequestPart("request") ApplicationRequest request) {
         return ResponseEntity.ok().body(this.customerService.createApplication(propertyId, servletRequest, request, images));
     }
 
