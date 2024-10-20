@@ -1,7 +1,6 @@
 package com.intela.realestatebackend.services;
 
 import com.intela.realestatebackend.models.ProfileImage;
-import com.intela.realestatebackend.models.UploadedFile;
 import com.intela.realestatebackend.models.User;
 import com.intela.realestatebackend.models.profile.ID;
 import com.intela.realestatebackend.models.profile.Profile;

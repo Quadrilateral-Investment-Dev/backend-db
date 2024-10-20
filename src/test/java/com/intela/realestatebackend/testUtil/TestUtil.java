@@ -10,9 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -39,7 +39,8 @@ public class TestUtil {
                 .andReturn();
 
         String responseContent = result.getResponse().getContentAsString();
-        return objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {});
+        return objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {
+        });
     }
 
     public static IDImageResponse getUploadedProfileId(MockMvc mockMvc, ObjectMapper objectMapper, String accessToken, String fileName) throws Exception {
@@ -72,7 +73,8 @@ public class TestUtil {
 
         // Assuming the response is a list of file metadata (could be URLs or file details)
         String responseContent = result.getResponse().getContentAsString();
-        List<IDImageResponse> fileResponses = objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {});
+        List<IDImageResponse> fileResponses = objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {
+        });
 
         // Step 2: Find the image with the given file name
         IDImageResponse targetFile = fileResponses.stream()
@@ -87,9 +89,10 @@ public class TestUtil {
                 .andReturn();
 
         byte[] retrievedBytes = fileResult.getResponse().getContentAsByteArray();
+        IDImageResponse idImageResponse = objectMapper.readValue(retrievedBytes, IDImageResponse.class);
 
         // Step 4: Compare the retrieved bytes with the original file bytes
-        Assertions.assertArrayEquals(originalBytes, retrievedBytes, "The uploaded and retrieved file contents should match");
+        Assertions.assertArrayEquals(originalBytes, idImageResponse.getImage(), "The uploaded and retrieved file contents should match");
         Assertions.assertArrayEquals(originalBytes, targetFile.getImage(), "The retrieved file contents from retrieve all and retrieve by id should match");
 
     }
@@ -107,6 +110,9 @@ public class TestUtil {
                 .andReturn();
 
         byte[] retrievedBytes = fileResult.getResponse().getContentAsByteArray();
+        IDImageResponse idImageResponse = objectMapper.readValue(retrievedBytes, IDImageResponse.class);
+
+        Assertions.assertArrayEquals(originalBytes, idImageResponse.getImage(), "The uploaded and retrieved file contents should match");
         Assertions.assertArrayEquals(originalBytes, retrievedBytes, "The uploaded and retrieved file contents should match");
     }
 
@@ -117,7 +123,8 @@ public class TestUtil {
                 .andReturn();
 
         String responseContent = result.getResponse().getContentAsString();
-        return objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {});
+        return objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {
+        });
     }
 
 
@@ -255,7 +262,8 @@ public class TestUtil {
 
         // Parse the response to get the list of ID files
         String responseContent = result.getResponse().getContentAsString();
-        List<IDImageResponse> idFiles = objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {});
+        List<IDImageResponse> idFiles = objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {
+        });
 
         // Step 2: Loop through each ID file and delete it
         for (IDImageResponse idFile : idFiles) {
@@ -272,7 +280,8 @@ public class TestUtil {
 
         // Parse the response again to ensure no ID files are returned
         String verificationResponseContent = verificationResult.getResponse().getContentAsString();
-        List<IDImageResponse> remainingIdFiles = objectMapper.readValue(verificationResponseContent, new TypeReference<List<IDImageResponse>>() {});
+        List<IDImageResponse> remainingIdFiles = objectMapper.readValue(verificationResponseContent, new TypeReference<List<IDImageResponse>>() {
+        });
 
         // Assert that the list is empty
         Assertions.assertTrue(remainingIdFiles.isEmpty(), "All ID files should have been deleted");
@@ -298,7 +307,8 @@ public class TestUtil {
 
         // Parse the response to get the list of ID files
         String responseContent = result.getResponse().getContentAsString();
-        List<IDImageResponse> idFiles = objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {});
+        List<IDImageResponse> idFiles = objectMapper.readValue(responseContent, new TypeReference<List<IDImageResponse>>() {
+        });
 
         // Step 2: Loop through each ID file and delete it
         for (IDImageResponse idFile : idFiles) {
@@ -315,7 +325,8 @@ public class TestUtil {
 
         // Parse the response again to ensure no ID files are returned
         String verificationResponseContent = verificationResult.getResponse().getContentAsString();
-        List<IDImageResponse> remainingIdFiles = objectMapper.readValue(verificationResponseContent, new TypeReference<List<IDImageResponse>>() {});
+        List<IDImageResponse> remainingIdFiles = objectMapper.readValue(verificationResponseContent, new TypeReference<List<IDImageResponse>>() {
+        });
 
         // Assert that the list is empty
         Assertions.assertTrue(remainingIdFiles.isEmpty(), "All ID files should have been deleted");

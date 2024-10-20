@@ -1,8 +1,8 @@
 package com.intela.realestatebackend.util;
 
 import com.intela.realestatebackend.exceptions.MissingAccessTokenException;
-import com.intela.realestatebackend.models.UploadedFile;
 import com.intela.realestatebackend.models.ProfileImage;
+import com.intela.realestatebackend.models.UploadedFile;
 import com.intela.realestatebackend.models.User;
 import com.intela.realestatebackend.models.archetypes.FileType;
 import com.intela.realestatebackend.models.profile.ID;
@@ -17,8 +17,8 @@ import com.intela.realestatebackend.repositories.PropertyRepository;
 import com.intela.realestatebackend.repositories.UserRepository;
 import com.intela.realestatebackend.repositories.application.ApplicationRepository;
 import com.intela.realestatebackend.requestResponse.*;
-import com.intela.realestatebackend.services.UploadedFileService;
 import com.intela.realestatebackend.services.JwtService;
+import com.intela.realestatebackend.services.UploadedFileService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -262,11 +262,35 @@ public class Util {
         return updatedFields;
     }
 
+    public static void checkForDuplicateFileNames(MultipartFile[] imagesRequest) throws Exception {
+        if (imagesRequest == null || imagesRequest.length == 0) {
+            return; // No files to check
+        }
+
+        Set<String> fileNames = new HashSet<>();
+
+        for (MultipartFile file : imagesRequest) {
+            String fileName = file.getOriginalFilename();
+            if (fileName == null) {
+                continue; // Ignore files with no name
+            }
+
+            if (!fileNames.add(fileName)) {
+                throw new Exception("Duplicate file name found: " + fileName);
+            }
+        }
+    }
+
     public static void multipartFileToIDList(Integer userId,
                                              ProfileRepository profileRepository,
                                              MultipartFile[] imagesRequest,
                                              Set<ID> ids,
                                              UploadedFileService imageService) {
+        try {
+            checkForDuplicateFileNames(imagesRequest);
+        } catch (Exception e) {
+            throw new RuntimeException("Duplicate file names found");
+        }
         Arrays.asList(imagesRequest).forEach(
                 imageRequest -> {
                     try {
@@ -291,6 +315,11 @@ public class Util {
                                              MultipartFile[] imagesRequest,
                                              Set<ID> ids,
                                              UploadedFileService imageService) {
+        try {
+            checkForDuplicateFileNames(imagesRequest);
+        } catch (Exception e) {
+            throw new RuntimeException("Duplicate file names found");
+        }
         Arrays.asList(imagesRequest).forEach(
                 imageRequest -> {
                     try {
@@ -301,7 +330,7 @@ public class Util {
                                 .profile(applicationRepository.findById(Math.toIntExact(applicationId))
                                         .orElseThrow(() -> new RuntimeException("Profile not found for user")))
                                 .build();
-                        imageService.storeFile(id, ((Application)id.getProfile()).getUser().getId(), String.valueOf(applicationId), FileType.APPLICATION_ID);
+                        imageService.storeFile(id, ((Application) id.getProfile()).getUser().getId(), String.valueOf(applicationId), FileType.APPLICATION_ID);
                         ids.add(id);
                     } catch (IOException e) {
                         throw new RuntimeException("Could not save image: " + e);
@@ -316,6 +345,11 @@ public class Util {
             MultipartFile[] imagesRequest,
             List<PropertyImage> propertyImages,
             UploadedFileService imageService) {
+        try {
+            checkForDuplicateFileNames(imagesRequest);
+        } catch (Exception e) {
+            throw new RuntimeException("Duplicate file names found");
+        }
         Arrays.asList(imagesRequest).forEach(
                 imageRequest -> {
                     try {
