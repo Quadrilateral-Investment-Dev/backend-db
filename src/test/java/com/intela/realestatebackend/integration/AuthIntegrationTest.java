@@ -8,6 +8,7 @@ import com.intela.realestatebackend.testUsers.TestUser;
 import com.intela.realestatebackend.testUtil.TestUtil;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
@@ -28,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AuthIntegrationTest extends BaseTestContainerTest {
 
     private static List<TestUser> testUserList;
+    private static List<TestUser> adminUsers;
     @Autowired
     private List<TestUser> allUsers;
 
@@ -41,6 +43,7 @@ public class AuthIntegrationTest extends BaseTestContainerTest {
     @Order(1)
     void shouldRegisterUser() throws Exception {
         testUserList = TestUtil.testRegisterCustomerUsers(mockMvc, objectMapper, allUsers);
+        adminUsers = TestUtil.testRegisterAdminUsers(mockMvc, objectMapper, allUsers);
     }
 
     @Test
@@ -109,11 +112,11 @@ public class AuthIntegrationTest extends BaseTestContainerTest {
     @Test
     @Order(6)
     void shouldCustomerAccessProtectedAuthEndpoints() throws Exception {
-        AuthenticationResponse authenticationResponse = TestUtil.testLogin(mockMvc, objectMapper, testUserList.get(0).getEMAIL(), testUserList.get(0).getPASSWORD());
+        AuthenticationResponse authenticationResponse = TestUtil.testLogin(mockMvc, objectMapper, adminUsers.get(0).getEMAIL(), adminUsers.get(0).getPASSWORD());
         String oldAccessToken = authenticationResponse.getAccessToken();
         TestUtil.testLogout(mockMvc, oldAccessToken);
         Thread.sleep(1000); // 1 second
-        authenticationResponse = TestUtil.testLogin(mockMvc, objectMapper, testUserList.get(0).getEMAIL(), testUserList.get(0).getPASSWORD());
+        authenticationResponse = TestUtil.testLogin(mockMvc, objectMapper, adminUsers.get(0).getEMAIL(), adminUsers.get(0).getPASSWORD());
         String accessToken = authenticationResponse.getAccessToken();
         String refreshToken = authenticationResponse.getRefreshToken();
         assertNotEquals(accessToken, oldAccessToken);
@@ -157,6 +160,7 @@ public class AuthIntegrationTest extends BaseTestContainerTest {
                 .andExpect(status().isForbidden());  // Expecting HTTP 403 Forbidden
         //access /userByAccessToken with a valid token
         s = mockMvc.perform(get("/api/v1/auth/userByAccessToken")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .param("accessToken", accessToken))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -178,6 +182,7 @@ public class AuthIntegrationTest extends BaseTestContainerTest {
                 .andExpect(status().isForbidden());  // Expecting HTTP 403 Forbidden
         //access /userByRefreshToken with a valid token
         s = mockMvc.perform(get("/api/v1/auth/userByRefreshToken")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .param("refreshToken", refreshToken))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -185,13 +190,13 @@ public class AuthIntegrationTest extends BaseTestContainerTest {
                 .getContentAsString();
         RetrieveAccountResponse retrieveAccountResponseFromRefreshToken = objectMapper.readValue(s, RetrieveAccountResponse.class);
 
-        assertEquals(testUserList.get(0).getMOBILE_NUMBER(), loggedUserResponse.getMobileNumber());
-        assertEquals(testUserList.get(0).getMOBILE_NUMBER(), retrieveAccountResponseFromRefreshToken.getMobileNumber());
-        assertEquals(testUserList.get(0).getMOBILE_NUMBER(), retrieveAccountResponseFromAccessToken.getMobileNumber());
+        assertEquals(adminUsers.get(0).getMOBILE_NUMBER(), loggedUserResponse.getMobileNumber());
+        assertEquals(adminUsers.get(0).getMOBILE_NUMBER(), retrieveAccountResponseFromRefreshToken.getMobileNumber());
+        assertEquals(adminUsers.get(0).getMOBILE_NUMBER(), retrieveAccountResponseFromAccessToken.getMobileNumber());
 
-        assertEquals(testUserList.get(0).getFIRST_NAME(), loggedUserResponse.getFirstName());
-        assertEquals(testUserList.get(0).getFIRST_NAME(), retrieveAccountResponseFromRefreshToken.getFirstName());
-        assertEquals(testUserList.get(0).getFIRST_NAME(), retrieveAccountResponseFromAccessToken.getFirstName());
+        assertEquals(adminUsers.get(0).getFIRST_NAME(), loggedUserResponse.getFirstName());
+        assertEquals(adminUsers.get(0).getFIRST_NAME(), retrieveAccountResponseFromRefreshToken.getFirstName());
+        assertEquals(adminUsers.get(0).getFIRST_NAME(), retrieveAccountResponseFromAccessToken.getFirstName());
         TestUtil.testLogout(mockMvc, accessToken);
     }
 }

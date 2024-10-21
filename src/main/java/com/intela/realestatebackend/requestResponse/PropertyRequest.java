@@ -7,7 +7,6 @@ import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.sql.Date;
@@ -24,25 +23,30 @@ public class PropertyRequest extends Property {
 
     @Override
     @JsonIgnore
-    public List<PropertyImage> getPropertyImages(){
+    public List<PropertyImage> getPropertyImages() {
         return super.getPropertyImages();
     }
+
     @JsonIgnore
     public Set<Plan> getPlans() {
         return super.getPlans();
     }
+
     @JsonIgnore
     public Date getCreatedDate() {
         return super.getCreatedDate();
     }
+
     @JsonIgnore
     public Property getParentListing() {
         return super.getParentListing();
     }
+
     @JsonIgnore
     public Set<Application> getApplications() {
         return super.getApplications();
     }
+
     @JsonIgnore
     public Set<Bookmark> getBookmarks() {
         return super.getBookmarks();

@@ -34,30 +34,39 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/api/v1/auth/**")
+                        // Public access to certain auth-related endpoints
+                        .requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register", "/api/v1/auth/forgotPassword")
                         .permitAll()
+
                         // Restrict these auth-related endpoints to authenticated users
-                        .requestMatchers("/api/v1/auth/user",
-                                "/api/v1/auth/resetPassword")
+                        .requestMatchers("/api/v1/auth/user", "/api/v1/auth/resetPassword")
                         .authenticated()
+
+                        // Admin-only endpoints for user tokens
+                        .requestMatchers("/api/v1/auth/userByAccessToken", "/api/v1/auth/userByRefreshToken")
+                        .hasRole(ADMIN.name())
+
                         // Allow access to Swagger UI and API docs
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**")
                         .permitAll()
-                        //ADMIN ENDPOINTS
+
+                        // Admin endpoints restricted to users with ADMIN role
                         .requestMatchers("/api/v1/admin/**").hasRole(ADMIN.name())
 
-                        //CUSTOMER ENDPOINTS
-                        .requestMatchers("/api/v1/customer/**").hasAnyRole(CUSTOMER.name(), ADMIN.name())
+                        // Customer endpoints accessible by customers and admins
+                        .requestMatchers("/api/v1/customer/**").hasAnyRole(CUSTOMER.name(), DEALER.name(), ADMIN.name())
 
-                        .requestMatchers("/api/v1/properties/**").permitAll()
-
-                        .requestMatchers("/api/v1/user/**").hasAnyRole(CUSTOMER.name(), ADMIN.name(), DEALER.name())
-
-                        //DEALER ENDPOINTS
+                        // Dealer endpoints accessible by dealers and admins
                         .requestMatchers("/api/v1/dealer/**").hasAnyRole(DEALER.name(), ADMIN.name())
 
-                        .anyRequest()
-                        .authenticated()
+                        // Public access to property-related endpoints
+                        .requestMatchers("/api/v1/properties/**").permitAll()
+
+                        // User-related endpoints accessible by customers, dealers, and admins
+                        .requestMatchers("/api/v1/user/**").hasAnyRole(CUSTOMER.name(), ADMIN.name(), DEALER.name())
+
+                        // All other requests require authentication
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -67,13 +76,13 @@ public class SecurityConfig {
                 .logout((logout) -> logout
                         .logoutUrl("/api/v1/auth/logout")
                         .addLogoutHandler(logoutHandler)
-                        .logoutSuccessHandler((
-                                (request, response, authentication) ->
-                                        SecurityContextHolder.clearContext()
-                        ))
+                        .logoutSuccessHandler((request, response, authentication) ->
+                                SecurityContextHolder.clearContext())
                 );
         return http.build();
     }
+
+
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {

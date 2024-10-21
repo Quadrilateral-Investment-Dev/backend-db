@@ -9,7 +9,7 @@ spring:
       max-request-size: 10MB
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update  # Change from 'create-drop' to 'update'
     generate-ddl: true
     show-sql: false
     properties:
@@ -35,11 +35,3 @@ application:
       image-directory: ./resources/images
     maximum-file-size:
       property-images: 10000000
-
-    #logging:
-    #  level:
-    #   root: debug  # Set the root logging level to DEBUG
-    #  org.springframework: debug  # Enable debug logging for Spring Framework classes
-    # com.intela.realestatebackend: debug  # Enable debug logging for your application's package
-    #org.hibernate.SQL: debug  # Logs all SQL statements
-    #org.hibernate.type.descriptor.sql.BasicBinder: trace  # Logs SQL parameters
