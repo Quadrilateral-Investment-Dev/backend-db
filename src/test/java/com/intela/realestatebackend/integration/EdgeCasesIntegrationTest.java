@@ -3,14 +3,15 @@ package com.intela.realestatebackend.integration;
 import com.intela.realestatebackend.BaseTestContainerTest;
 import com.intela.realestatebackend.testUsers.TestUser;
 import com.intela.realestatebackend.testUtil.TestUtil;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.io.IOException;
 import java.util.List;
+
+import static com.intela.realestatebackend.testUtil.TestUtil.IMAGES_PATH;
+import static com.intela.realestatebackend.testUtil.TestUtil.cleanDirectory;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
@@ -20,6 +21,12 @@ public class EdgeCasesIntegrationTest extends BaseTestContainerTest {
     private static List<TestUser> dealerUsers;
     @Autowired
     private List<TestUser> allUsers;
+
+    @AfterAll
+    public static void cleanUp() throws IOException {
+        // Delete all files in the ./resources/images directory
+        cleanDirectory(IMAGES_PATH);
+    }
 
     @Test
     @Order(1)

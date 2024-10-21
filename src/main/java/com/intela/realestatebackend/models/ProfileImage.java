@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @Entity(name = "profile_images")
-public class ProfileImage extends Image {
+public class ProfileImage extends UploadedFile {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     @ToString.Exclude

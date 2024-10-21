@@ -2,18 +2,14 @@ package com.intela.realestatebackend.requestResponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.intela.realestatebackend.models.archetypes.PropertyStatus;
 import com.intela.realestatebackend.models.property.*;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.sql.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -22,19 +18,37 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor
-@NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(value = {"propertyImages"}, allowGetters = true, ignoreUnknown = true)
 public class PropertyRequest extends Property {
+
+    @Override
     @JsonIgnore
-    private List<PropertyImage> propertyImages;
+    public List<PropertyImage> getPropertyImages() {
+        return super.getPropertyImages();
+    }
+
     @JsonIgnore
-    private Set<Plan> plans;
+    public Set<Plan> getPlans() {
+        return super.getPlans();
+    }
+
     @JsonIgnore
-    private Date createdDate;
+    public Date getCreatedDate() {
+        return super.getCreatedDate();
+    }
+
     @JsonIgnore
-    private Property parentListing;
+    public Property getParentListing() {
+        return super.getParentListing();
+    }
+
     @JsonIgnore
-    private Set<Application> applications;
+    public Set<Application> getApplications() {
+        return super.getApplications();
+    }
+
     @JsonIgnore
-    private Set<Bookmark> bookmarks;
+    public Set<Bookmark> getBookmarks() {
+        return super.getBookmarks();
+    }
 }

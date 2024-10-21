@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.beans.BeanUtils;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
@@ -18,12 +17,15 @@ import java.util.Set;
 @NoArgsConstructor
 public class RetrieveProfileResponse extends Profile {
     private Integer userId;
-    @JsonIgnore
-    private Set<ID> ids = new HashSet<>();
 
     public RetrieveProfileResponse(Profile profile) {
         BeanUtils.copyProperties(profile, this);
         init();
+    }
+
+    @JsonIgnore
+    public Set<ID> getIds() {
+        return super.getIds();
     }
 
     private void init() {

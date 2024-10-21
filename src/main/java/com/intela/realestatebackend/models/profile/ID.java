@@ -1,7 +1,7 @@
 package com.intela.realestatebackend.models.profile;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.intela.realestatebackend.models.Image;
+import com.intela.realestatebackend.models.UploadedFile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class ID extends Image {
+public class ID extends UploadedFile {
     @ManyToOne
     @JoinColumn(name = "profile_id")
     @Schema(hidden = true)

@@ -2,10 +2,12 @@ package com.intela.realestatebackend.controllers;
 
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.services.UserService;
+import com.intela.realestatebackend.util.Util;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    @Value(value = "${application.custom.maximum-file-size.property-images}")
+    private Integer MAX_FILE_SIZE_PROPERTY_IMAGES;
 
     @Operation(
             summary = "Updates user profile",
@@ -108,8 +112,35 @@ public class UserController {
     }
 
     @GetMapping(value = "/profile/ids")
-    public ResponseEntity<List<IDImageResponse>> getIdImagesByUserId(HttpServletRequest servletRequest) {
-        return ResponseEntity.ok(this.userService.getIdImagesByUserId(servletRequest));
+    public ResponseEntity<List<IDImageResponse>> getIdsByUserId(HttpServletRequest servletRequest) {
+        return ResponseEntity.ok(this.userService.getIdsByUserId(servletRequest));
+    }
+
+    @GetMapping(value = "/profile/ids/{idId}")
+    public ResponseEntity<IDImageResponse> getIdByIdId(@PathVariable Integer idId, HttpServletRequest servletRequest) {
+        return ResponseEntity.ok(this.userService.getIdByIdId(idId, servletRequest));
+    }
+
+    @DeleteMapping(value = "/profile/ids/{idId}")
+    public ResponseEntity<String> deleteIdByIdId(@PathVariable Integer idId, HttpServletRequest servletRequest) {
+        this.userService.deleteIdByIdId(idId, servletRequest);
+        return ResponseEntity.ok("ID file deleted");
+    }
+
+    @PostMapping("/profile/ids")
+    public ResponseEntity<String> addIdsToProfile(@RequestPart MultipartFile[] images, HttpServletRequest servletRequest) {
+        if (images != null) {
+            for (MultipartFile multipartFile : images) {
+                if (!Util.isImageOrPdf(multipartFile)) {
+                    return ResponseEntity.status(415).body(null);
+                }
+                if (Util.exceedsSizeLimit(multipartFile, MAX_FILE_SIZE_PROPERTY_IMAGES)) {
+                    return ResponseEntity.status(413).body(null);
+                }
+            }
+        }
+        this.userService.addIdsToProfile(images, servletRequest);
+        return ResponseEntity.ok("Images added successfully");
     }
 
     @PostMapping("/")

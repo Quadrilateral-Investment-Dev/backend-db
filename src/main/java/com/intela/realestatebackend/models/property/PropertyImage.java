@@ -1,7 +1,7 @@
 package com.intela.realestatebackend.models.property;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.intela.realestatebackend.models.Image;
+import com.intela.realestatebackend.models.UploadedFile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @Entity(name = "property_images")
-public class PropertyImage extends Image {
+public class PropertyImage extends UploadedFile {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "property_id")
     @ToString.Exclude

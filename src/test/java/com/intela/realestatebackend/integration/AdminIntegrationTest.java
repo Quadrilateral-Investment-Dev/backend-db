@@ -14,10 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.List;
 
+import static com.intela.realestatebackend.testUtil.TestUtil.IMAGES_PATH;
+import static com.intela.realestatebackend.testUtil.TestUtil.cleanDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -30,6 +33,12 @@ public class AdminIntegrationTest extends BaseTestContainerTest {
     private static List<TestUser> customerUsers;
     @Autowired
     private List<TestUser> allUsers;
+
+    @AfterAll
+    public static void cleanUp() throws IOException {
+        // Delete all files in the ./resources/images directory
+        cleanDirectory(IMAGES_PATH);
+    }
 
     @Test
     @Order(1)
@@ -78,6 +87,8 @@ public class AdminIntegrationTest extends BaseTestContainerTest {
                 ).andReturn().getResponse().getContentAsString();
         RetrieveAccountResponse customer = objectMapper.readValue(s, RetrieveAccountResponse.class);
 
+        // Reset customer's profile IDs
+        TestUtil.testDeleteUserProfileIDsAsAdmin(mockMvc, objectMapper, adminAccessToken, customer.getId());
         // Retrieve customer's profile
         s = mockMvc.perform(get("/api/v1/admin/user-management/profiles/{userId}", customer.getId())
                         .header("Authorization", "Bearer " + adminAccessToken))

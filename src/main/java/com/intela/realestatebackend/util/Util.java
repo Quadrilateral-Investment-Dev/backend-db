@@ -1,9 +1,10 @@
 package com.intela.realestatebackend.util;
 
 import com.intela.realestatebackend.exceptions.MissingAccessTokenException;
-import com.intela.realestatebackend.models.Image;
 import com.intela.realestatebackend.models.ProfileImage;
+import com.intela.realestatebackend.models.UploadedFile;
 import com.intela.realestatebackend.models.User;
+import com.intela.realestatebackend.models.archetypes.FileType;
 import com.intela.realestatebackend.models.profile.ID;
 import com.intela.realestatebackend.models.profile.Profile;
 import com.intela.realestatebackend.models.property.Application;
@@ -14,9 +15,10 @@ import com.intela.realestatebackend.repositories.ProfileRepository;
 import com.intela.realestatebackend.repositories.PropertyImageRepository;
 import com.intela.realestatebackend.repositories.PropertyRepository;
 import com.intela.realestatebackend.repositories.UserRepository;
+import com.intela.realestatebackend.repositories.application.ApplicationRepository;
 import com.intela.realestatebackend.requestResponse.*;
-import com.intela.realestatebackend.services.ImageService;
 import com.intela.realestatebackend.services.JwtService;
+import com.intela.realestatebackend.services.UploadedFileService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,12 +40,12 @@ import java.util.zip.Inflater;
 @RequiredArgsConstructor
 public class Util {
 
-    public static void toFullImage(Image image) {
+    public static void toFullImage(UploadedFile image) {
         if (image.getImage() != null)
             image.setImage(decompressImage(image.getImage()));
         else {
             try {
-                image.setImage(Util.readFileToBytes(Paths.get(image.getPath(), image.getName()).toString()));
+                image.setImage(Util.readFileToBytes(image.getPath()));
             } catch (IOException e) {
                 throw new RuntimeException("Cannot retrieve profile image" + e);
             }
@@ -131,7 +134,7 @@ public class Util {
         return getPropertyResponse(property);
     }
 
-    public static List<PropertyImageResponse> getImageByPropertyId(int propertyId, PropertyImageRepository propertyImageRepository) {
+    public static List<PropertyImageResponse> getPropertyImageByPropertyId(int propertyId, PropertyImageRepository propertyImageRepository) {
         List<PropertyImageResponse> propertyImageResponses = new ArrayList<>();
         List<PropertyImage> propertyImages = propertyImageRepository.findAllByPropertyId(propertyId);
 
@@ -158,6 +161,11 @@ public class Util {
         }
 
         throw new IllegalArgumentException("The given field object is not a field of the parent object.");
+    }
+
+    public static boolean doesFileExist(String filePath) {
+        Path path = Paths.get(filePath);
+        return Files.exists(path);
     }
 
     public static PropertyImageResponse convertFromPropertyImageToImageResponse(PropertyImage propertyImage) {
@@ -254,11 +262,35 @@ public class Util {
         return updatedFields;
     }
 
+    public static void checkForDuplicateFileNames(MultipartFile[] imagesRequest) throws Exception {
+        if (imagesRequest == null || imagesRequest.length == 0) {
+            return; // No files to check
+        }
+
+        Set<String> fileNames = new HashSet<>();
+
+        for (MultipartFile file : imagesRequest) {
+            String fileName = file.getOriginalFilename();
+            if (fileName == null) {
+                continue; // Ignore files with no name
+            }
+
+            if (!fileNames.add(fileName)) {
+                throw new Exception("Duplicate file name found: " + fileName);
+            }
+        }
+    }
+
     public static void multipartFileToIDList(Integer userId,
                                              ProfileRepository profileRepository,
                                              MultipartFile[] imagesRequest,
                                              Set<ID> ids,
-                                             ImageService imageService) {
+                                             UploadedFileService imageService) {
+        try {
+            checkForDuplicateFileNames(imagesRequest);
+        } catch (Exception e) {
+            throw new RuntimeException("Duplicate file names found");
+        }
         Arrays.asList(imagesRequest).forEach(
                 imageRequest -> {
                     try {
@@ -269,7 +301,7 @@ public class Util {
                                 .profile(profileRepository.findByProfileOwnerId(userId)
                                         .orElseThrow(() -> new RuntimeException("Profile not found for user")))
                                 .build();
-                        imageService.storeImage(id);
+                        imageService.storeFile(id, userId, "", FileType.PROFILE_ID);
                         ids.add(id);
                     } catch (IOException e) {
                         throw new RuntimeException("Could not save image: " + e);
@@ -278,11 +310,46 @@ public class Util {
         );
     }
 
+    public static void multipartFileToIDList(Long applicationId,
+                                             ApplicationRepository applicationRepository,
+                                             MultipartFile[] imagesRequest,
+                                             Set<ID> ids,
+                                             UploadedFileService imageService) {
+        try {
+            checkForDuplicateFileNames(imagesRequest);
+        } catch (Exception e) {
+            throw new RuntimeException("Duplicate file names found");
+        }
+        Arrays.asList(imagesRequest).forEach(
+                imageRequest -> {
+                    try {
+                        ID id = ID.builder()
+                                .image(compressImage(imageRequest.getBytes()))
+                                .name(imageRequest.getOriginalFilename())
+                                .type(imageRequest.getContentType())
+                                .profile(applicationRepository.findById(Math.toIntExact(applicationId))
+                                        .orElseThrow(() -> new RuntimeException("Profile not found for user")))
+                                .build();
+                        imageService.storeFile(id, ((Application) id.getProfile()).getUser().getId(), String.valueOf(applicationId), FileType.APPLICATION_ID);
+                        ids.add(id);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Could not save image: " + e);
+                    }
+                }
+        );
+    }
+
+
     public static void multipartFileToPropertyImageList(
             Property property,
             MultipartFile[] imagesRequest,
             List<PropertyImage> propertyImages,
-            ImageService imageService) {
+            UploadedFileService imageService) {
+        try {
+            checkForDuplicateFileNames(imagesRequest);
+        } catch (Exception e) {
+            throw new RuntimeException("Duplicate file names found");
+        }
         Arrays.asList(imagesRequest).forEach(
                 imageRequest -> {
                     try {
@@ -292,7 +359,7 @@ public class Util {
                                 .type(imageRequest.getContentType())
                                 .property(property)
                                 .build();
-                        imageService.storeImage(propertyImage);
+                        imageService.storeFile(propertyImage, propertyImage.getProperty().getUser().getId(), String.valueOf(property.getId()), FileType.PROPERTY_IMAGE);
                         propertyImages.add(propertyImage);
                     } catch (IOException e) {
                         throw new RuntimeException("Could not save image: " + e);
@@ -342,7 +409,7 @@ public class Util {
         return new ApplicationResponse(application);
     }
 
-    public static ProfileImage multipartFileToProfileImage(User user, MultipartFile image, ImageService imageService) throws IOException {
+    public static ProfileImage multipartFileToProfileImage(User user, MultipartFile image, UploadedFileService imageService) throws IOException {
         ProfileImage profileImage = ProfileImage.builder()
                 .image(compressImage(image.getBytes()))
                 .name(image.getOriginalFilename())
@@ -351,7 +418,12 @@ public class Util {
                 .build();
         if (user.getProfileImage() != null)
             profileImage.setId(user.getProfileImage().getId());
-        imageService.storeImage(profileImage);
+        try {
+            imageService.storeFile(profileImage, user.getId(), "", FileType.PROFILE_AVATAR);
+        } catch (FileAlreadyExistsException e) {
+            imageService.removeFile(profileImage, user.getId(), "", FileType.PROFILE_AVATAR);
+            imageService.storeFile(profileImage, user.getId(), "", FileType.PROFILE_AVATAR);
+        }
         return profileImage;
     }
 }

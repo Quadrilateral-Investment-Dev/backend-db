@@ -10,6 +10,7 @@ import com.intela.realestatebackend.repositories.UserRepository;
 import com.intela.realestatebackend.repositories.application.IDRepository;
 import com.intela.realestatebackend.requestResponse.*;
 import com.intela.realestatebackend.util.Util;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.intela.realestatebackend.util.Util.getUserByToken;
+import static com.intela.realestatebackend.util.Util.*;
 
 @Service
 public class UserService {
@@ -36,7 +37,7 @@ public class UserService {
     @Autowired
     private JwtService jwtService;
     @Autowired
-    private ImageService imageService;
+    private UploadedFileService imageService;
     @Autowired
     private IDRepository idRepository;
 
@@ -120,7 +121,7 @@ public class UserService {
         return new RetrieveAccountResponse(user);
     }
 
-    public List<IDImageResponse> getIdImagesByUserId(HttpServletRequest servletRequest) {
+    public List<IDImageResponse> getIdsByUserId(HttpServletRequest servletRequest) {
         User user = getUserByToken(servletRequest, jwtService, this.userRepository);
         Profile profile = profileRepository.findByProfileOwnerId(user.getId()).orElseThrow(
                 () -> new RuntimeException("Profile not found")
@@ -129,5 +130,43 @@ public class UserService {
         return idImageResponses.stream()
                 .map(Util::convertFromIDImageToImageResponse) // Assuming ImageResponse has a constructor that takes a PropertyImage
                 .collect(Collectors.toList());
+    }
+
+    public IDImageResponse getIdByIdId(Integer idId, HttpServletRequest servletRequest) {
+        ID id = idRepository.findById(idId).orElseThrow(() -> new RuntimeException("ID not found"));
+        return convertFromIDImageToImageResponse(id);
+    }
+
+    public void deleteIdByIdId(Integer idId, HttpServletRequest servletRequest) {
+        // Step 1: Retrieve the ID file from the database
+        ID idFile = idRepository.findById(idId)
+                .orElseThrow(() -> new RuntimeException("ID file not found with id: " + idId));
+
+        // Step 2: Remove the file from the filesystem
+        try {
+            imageService.removeFile(idFile.getPath()); // Adjust the parameters as necessary
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to remove file: " + e.getMessage());
+        }
+
+        // Step 3: Delete the ID record from the database
+        idRepository.deleteById(idId);
+    }
+
+    public void addIdsToProfile(MultipartFile[] images, HttpServletRequest servletRequest) {
+        User user = getUserByToken(servletRequest, jwtService, this.userRepository);
+        Integer userId = user.getId();
+        Set<ID> ids = new HashSet<>();
+        Profile profile = this.profileRepository.findByProfileOwnerId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Profile not found"));
+        multipartFileToIDList(profile.getProfileOwner().getId(), profileRepository, images, ids, imageService);
+
+        //set images property id to saved property
+        try {
+            ids.forEach(id -> id.setProfile(profile));
+            this.idRepository.saveAll(ids);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not save image: " + e);
+        }
     }
 }

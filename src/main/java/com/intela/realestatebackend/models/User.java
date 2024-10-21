@@ -1,7 +1,6 @@
 package com.intela.realestatebackend.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.intela.realestatebackend.models.archetypes.Role;
 import com.intela.realestatebackend.models.profile.Profile;
