@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Entity(name = "property_images")
 public class PropertyImage extends UploadedFile {
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "property_id")
     @ToString.Exclude
     @Schema(hidden = true)

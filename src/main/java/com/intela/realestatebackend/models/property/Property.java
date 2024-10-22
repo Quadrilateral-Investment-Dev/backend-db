@@ -9,6 +9,7 @@ import com.intela.realestatebackend.models.archetypes.BillType;
 import com.intela.realestatebackend.models.archetypes.PaymentCycle;
 import com.intela.realestatebackend.models.archetypes.PropertyStatus;
 import com.intela.realestatebackend.models.archetypes.PropertyType;
+import com.intela.realestatebackend.models.profile.ID;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -70,6 +71,15 @@ public class Property {
     @ToString.Exclude
     @JsonManagedReference("property-propertyImages")
     private List<PropertyImage> propertyImages = new ArrayList<>();
+
+    public void setPropertyImages(List<PropertyImage> propertyImages) {
+        if (this.propertyImages == null) {
+            this.propertyImages = propertyImages;
+        } else {
+            this.propertyImages.clear();
+            this.propertyImages.addAll(propertyImages);
+        }
+    }
 
     @OneToMany(
             cascade = CascadeType.ALL,

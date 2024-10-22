@@ -16,6 +16,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -44,6 +45,11 @@ public class Application extends Profile {
     @CreationTimestamp
     @Column(updatable = false)
     private Date submittedDate;
+
+    private Timestamp earliestMoveInFrom;
+    private Timestamp latestMoveInBy;
+    private Timestamp earliestCheckoutOn;
+    private Timestamp latestCheckoutBy;
 
     @JsonSetter(nulls = Nulls.SKIP)  // Skip setting to null and retain the default value if the field is absent or null
     public void setStatus(ApplicationStatus status) {
