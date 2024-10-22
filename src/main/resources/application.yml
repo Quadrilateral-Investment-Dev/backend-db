@@ -9,7 +9,7 @@ spring:
       max-request-size: 10MB
   jpa:
     hibernate:
-      ddl-auto: create-drop  # Change from 'create-drop' to 'update'
+      ddl-auto: update  # Change from 'create-drop' to 'update'
     generate-ddl: true
     show-sql: false
     properties:
