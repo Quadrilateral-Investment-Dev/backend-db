@@ -25,7 +25,7 @@ public class PropertyResponse extends Property {
     private Integer parentId;
 
     public PropertyResponse(Property property) {
-        BeanUtils.copyProperties(property, this);
+        BeanUtils.copyProperties(property, this, "propertyImages", "applications", "bookmarks");
         init();
     }
 
