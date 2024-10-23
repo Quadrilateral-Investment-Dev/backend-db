@@ -1,5 +1,10 @@
 server:
   port: 8090
+  ssl:
+    key-store: ./keystore.p12
+    key-store-password: cymophane
+    keyStoreType: PKCS12
+    keyAlias: tomcat
 
 spring:
   servlet:
