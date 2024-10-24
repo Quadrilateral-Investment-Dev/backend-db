@@ -5,6 +5,7 @@ import com.intela.realestatebackend.models.User;
 import com.intela.realestatebackend.models.archetypes.TokenType;
 import com.intela.realestatebackend.repositories.TokenRepository;
 import com.intela.realestatebackend.repositories.UserRepository;
+import com.intela.realestatebackend.requestResponse.AuthenticationRequest;
 import com.intela.realestatebackend.requestResponse.RegisterRequest;
 import com.intela.realestatebackend.services.AuthService;
 import org.springframework.boot.CommandLineRunner;
@@ -49,14 +50,12 @@ public class RealestateBackendApplication {
                 System.out.println("Admin token: " + savedAdmin.getAccessToken());
                 System.out.println("Admin refresh token: " + savedAdmin.getRefreshToken());
             } else {
-                List<Token> tokens = tokenRepository.findAllValidTokenByUser(adminUser.get().getId());
-                tokens.forEach(token -> {
-                    if (token.getTokenType() == TokenType.ACCESS) {
-                        System.out.println("Admin access token: " + token.getToken());
-                    } else if (token.getTokenType() == TokenType.REFRESH) {
-                        System.out.println("Admin refresh token: " + token.getToken());
-                    }
-                });
+                var authenticationRequest = new AuthenticationRequest();
+                authenticationRequest.setEmail(adminEmail);
+                authenticationRequest.setPassword("1234");
+                var authenticationResponse = authenticationService.authenticate(authenticationRequest);
+                System.out.println("Admin access token: " + authenticationResponse.getAccessToken());
+                System.out.println("Admin refresh token: " + authenticationResponse.getRefreshToken());
             }
 
             // Handle customer user
