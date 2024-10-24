@@ -55,9 +55,15 @@ public class AdminService {
         Profile user = profileRepository.findByProfileOwnerId(userId)
                 .orElseThrow(() -> new RuntimeException("Profile not found for user"));
         Set<ID> ids = new HashSet<>();
-        Util.multipartFileToIDList(userId, profileRepository, images, ids, imageService);
-
         // Update user details based on UpdateProfileRequest
+        for (ID id : user.getIds()) {
+            try {
+                imageService.removeFile(id.getPath());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        Util.multipartFileToIDList(userId, profileRepository, images, ids, imageService);
         user.setIds(ids);
         Util.updateProfileFromRequest(user, request);
         // Save the updated user

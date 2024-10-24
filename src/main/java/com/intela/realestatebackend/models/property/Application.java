@@ -41,6 +41,7 @@ public class Application extends Profile {
 
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status = ApplicationStatus.UNREAD;
+    @Column(length = 65555)
     private String message;
     @CreationTimestamp
     @Column(updatable = false)

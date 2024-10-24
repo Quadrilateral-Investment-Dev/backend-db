@@ -42,6 +42,7 @@ public class Property {
     private String propertyOwnerName;
     @NotNull
     private String location;
+    @Column(length = 65555)
     private String description;
     @Enumerated(EnumType.STRING)
     @NotNull

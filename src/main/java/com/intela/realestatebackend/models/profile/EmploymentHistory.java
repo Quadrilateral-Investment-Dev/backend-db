@@ -23,7 +23,9 @@ public class EmploymentHistory {
     private int years;
     private int months;
     private double monthlySalary;
+    @Column(length=65555)
     private String screeningQuestion;
+    @Column(length=65555)
     private String applicantResponse;
 
     @ManyToOne

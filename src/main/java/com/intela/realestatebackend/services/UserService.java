@@ -50,7 +50,16 @@ public class UserService {
         // Update user details based on UpdateProfileRequest
         Profile profile = profileRepository.findByProfileOwnerId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Profile not found for user"));
-        this.addIds(servletRequest, images);
+        Set<ID> ids = new HashSet<>();
+        for (ID id : profile.getIds()) {
+            try {
+                imageService.removeFile(id.getPath());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        Util.multipartFileToIDList(user.getId(), profileRepository, images, ids, imageService);
+        profile.setIds(ids);
         // Update user details based on UpdateProfileRequest
         Util.updateProfileFromRequest(profile, request);
         // Save the updated user

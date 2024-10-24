@@ -140,6 +140,13 @@ public class DealerService {
         //Update images
         if (imagesRequest != null && imagesRequest.length > 0) {
             List<PropertyImage> propertyImages = new ArrayList<>();
+            for (PropertyImage image : property.getPropertyImages()) {
+                try {
+                    imageService.removeFile(image.getPath());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             multipartFileToPropertyImageList(dbProperty, imagesRequest, propertyImages, imageService);
             dbProperty.setPropertyImages(propertyImages);
         }
